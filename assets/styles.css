@@ -142,7 +142,9 @@ img,canvas{max-width:100%;display:block}
   background:radial-gradient(180px 180px at var(--mx,50%) var(--my,50%),var(--laser),transparent 60%);
   transition:opacity .25s var(--ease-soft)}
 .nav-inner:hover::before{opacity:1}
+.nav-inner:hover{box-shadow:0 10px 34px rgba(4,12,28,.4),var(--glass-hi),0 0 0 1px var(--laser-glow),0 0 22px 3px var(--laser-glow)}
 .nav.scrolled .nav-inner{--laser:rgba(120,150,255,.16)}
+.nav.scrolled .nav-inner:hover{box-shadow:0 8px 26px rgba(0,55,112,.14),inset 0 1px 0 rgba(255,255,255,.65),0 0 0 1px var(--laser-glow),0 0 18px 3px var(--laser-glow)}
 .nav.scrolled .nav-inner{height:50px;max-width:760px;padding:0 8px 0 20px;
   background:var(--glass-light);border-color:rgba(10,30,60,.08);
   box-shadow:0 8px 26px rgba(0,55,112,.14),inset 0 1px 0 rgba(255,255,255,.65)}
@@ -219,7 +221,7 @@ img,canvas{max-width:100%;display:block}
 main{position:relative;z-index:1}
 
 /* ---------- site-wide grain / particle overlay ---------- */
-#grainLayer{position:fixed;inset:0;z-index:45;pointer-events:none}
+#grainLayer{position:fixed;inset:0;z-index:-1;pointer-events:none}
 
 /* ---------- hero (transparent over the globe layer) ---------- */
 .hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;
@@ -618,8 +620,14 @@ main{position:relative;z-index:1}
   background:radial-gradient(130px 130px at var(--mx,50%) var(--my,50%),var(--laser),transparent 60%);
   transition:opacity .25s var(--ease-soft)}
 .btn:hover::before{opacity:1}
+.btn::after{content:"";position:absolute;inset:0;border-radius:inherit;z-index:1;pointer-events:none;opacity:0;
+  border:1px solid transparent;background:radial-gradient(90px 90px at var(--mx,50%) var(--my,50%),var(--laser-glow),transparent 70%) border-box;
+  -webkit-mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;
+  transition:opacity .25s var(--ease-soft)}
+.btn:hover::after{opacity:1}
 .btn.laser:hover,.btn-primary:hover,.btn-white:hover{
   box-shadow:0 0 0 1px rgba(255,255,255,.22),0 8px 24px rgba(8,16,40,.18),0 0 26px 2px var(--laser-glow)}
+.btn:hover{box-shadow:0 0 0 1px var(--laser-glow),0 6px 20px rgba(8,16,40,.14),0 0 18px 1px var(--laser-glow)}
 .btn-primary{--laser:rgba(206,219,255,.75);--laser-glow:rgba(120,140,255,.6)}
 .btn-white{--laser:rgba(170,190,255,.6);--laser-glow:rgba(120,140,255,.5)}
 .btn-ghost{--laser:rgba(190,210,255,.5);--laser-glow:rgba(120,150,255,.45)}

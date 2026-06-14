@@ -66,8 +66,8 @@
   /* ---- sandpaper grain field: dense, static positions, fine specks ---- */
   var grains = [];
   function spawnAll() {
-    var density = 1 / 28; // specks per px^2 of viewport
-    var n = Math.min(22000, Math.round(W * H * density));
+    var density = 1 / 56; // specks per px^2 of viewport
+    var n = Math.min(11000, Math.round(W * H * density));
     grains = [];
     for (var i = 0; i < n; i++) {
       grains.push({
@@ -90,7 +90,7 @@
     requestAnimationFrame(frame);
     t += 1;
     var scrollY = window.scrollY || window.pageYOffset || 0;
-    mx += (tmx - mx) * 0.18; my += (tmy - my) * 0.18;
+    mx += (tmx - mx) * 0.27; my += (tmy - my) * 0.27;
     ctx.clearRect(0, 0, W, H);
 
     for (var i = 0; i < grains.length; i++) {
@@ -104,11 +104,11 @@
         var px = g.x + g.ox, py = sy + g.oy;
         var pdx = px - mx, pdy = py - my, pdist = Math.sqrt(pdx * pdx + pdy * pdy);
         if (pdist < 110 && pdist > 0.01) {
-          var force = (1 - pdist / 110) * 1.6;
+          var force = (1 - pdist / 110) * 2.4;
           g.vx += (pdx / pdist) * force;
           g.vy += (pdy / pdist) * force;
         }
-        g.vx += -g.ox * 0.012; g.vy += -g.oy * 0.012; // gentle spring home
+        g.vx += -g.ox * 0.018; g.vy += -g.oy * 0.018; // gentle spring home
         g.vx *= 0.92; g.vy *= 0.92;                    // drag / friction
         g.ox += g.vx; g.oy += g.vy;
       }

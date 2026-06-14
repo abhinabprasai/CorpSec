@@ -200,13 +200,18 @@
 
   /* ---------- liquid-glass pointer light (laser glow follows the cursor) ---------- */
   var GLOW_SEL = ".btn,.card,.j-card,.jcard,.reco-card,.dash-callout,.lg,.nav-inner";
-  var tiltEl = null;
+  var tiltEl = null, glowEl = null;
+  function clearGlow(el) {
+    el.style.setProperty("--mx", "-999px"); el.style.setProperty("--my", "-999px");
+  }
   document.addEventListener("pointermove", function (e) {
     var el = e.target.closest ? e.target.closest(GLOW_SEL) : null;
+    if (glowEl && glowEl !== el) { clearGlow(glowEl); glowEl = null; }
     if (!el) {
       if (tiltEl) { tiltEl.style.setProperty("--tiltX", "0deg"); tiltEl.style.setProperty("--tiltY", "0deg"); tiltEl = null; }
       return;
     }
+    glowEl = el;
     var r = el.getBoundingClientRect();
     el.style.setProperty("--mx", (e.clientX - r.left).toFixed(0) + "px");
     el.style.setProperty("--my", (e.clientY - r.top).toFixed(0) + "px");
@@ -223,6 +228,7 @@
   }, { passive: true });
   document.addEventListener("pointerleave", function () {
     if (tiltEl) { tiltEl.style.setProperty("--tiltX", "0deg"); tiltEl.style.setProperty("--tiltY", "0deg"); tiltEl = null; }
+    if (glowEl) { clearGlow(glowEl); glowEl = null; }
   });
 
   /* ---------- the "scene": scroll progress, parallax, dissolve, dock ---------- */
