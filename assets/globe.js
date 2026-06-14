@@ -30,7 +30,7 @@
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion:reduce)").matches;
 
   // public no-op API so the page never errors even if WebGL/d3 is missing
-  window.Globe = { setProgress: function () {}, setParallax: function () {}, focus: function () {} };
+  window.Globe = { setProgress: function () {}, setParallax: function () {}, focus: function () {}, focusAt: function () {}, clearSearch: function () {}, getDisk: function () { return { cx: -9999, cy: -9999, r: 0 }; } };
   if (typeof d3 === "undefined") { if (fallback) fallback.textContent = ""; return; }
   if (fallback) fallback.style.display = "none";
 
@@ -44,6 +44,7 @@
 
   var rotation = [-30, -14, 0];          // current spin/tilt
   var focusIso = null, focusRot = null;  // when a jurisdiction is targeted
+  var searchPoint = null;                // when a searched (non-card) jurisdiction is targeted
 
   // eased scalars (give the "locomotive" smoothness)
   var curP = 0, tgtP = 0;                 // scroll progress hero->juris
@@ -113,40 +114,60 @@
   }
 
   /* ---------------- render ---------------- */
+  var diskCx = -9999, diskCy = -9999, diskR = 0;
   function render() {
+    var light = document.documentElement.dataset.theme === "light";
+    var pal = light ? {
+      atmo: ["rgba(70,110,230,0)", "rgba(80,130,235,0.14)", "rgba(74,120,225,0)"],
+      ocean: ["#dde9fb", "#bdd2f6", "#9cb8ee"],
+      rimGlow: "rgba(70,120,230,0.4)", rimShadow: "rgba(70,120,230,0.7)", rimBlur: 28,
+      rim: ["rgba(60,100,210,0)", "rgba(80,130,235,0.55)", "rgba(40,80,200,0.95)", "rgba(80,130,235,0.55)", "rgba(60,100,210,0)"],
+      rimShadow2: "rgba(80,130,235,0.7)",
+      graticule: "rgba(50,90,170,0.14)", land: "rgba(40,75,160,0.28)",
+      dotLit: "#3a5fd9", dotDim: "#7f96cf"
+    } : {
+      atmo: ["rgba(74,120,255,0)", "rgba(92,148,255,0.16)", "rgba(86,140,255,0)"],
+      ocean: ["#12274f", "#0a1530", "#03060f"],
+      rimGlow: "rgba(110,162,255,0.5)", rimShadow: "rgba(96,150,255,1)", rimBlur: 40,
+      rim: ["rgba(70,120,220,0)", "rgba(130,178,255,0.6)", "rgba(232,242,255,1)", "rgba(130,178,255,0.6)", "rgba(70,120,220,0)"],
+      rimShadow2: "rgba(170,205,255,0.95)",
+      graticule: "rgba(120,165,230,0.10)", land: "rgba(150,190,245,0.20)",
+      dotLit: "#dbe8ff", dotDim: "#9fb8e6"
+    };
     var L = layout(), ar = L.radius, cx = L.cx, cy = L.cy;
+    diskCx = cx; diskCy = cy; diskR = ar;
     projection.scale(ar).translate([cx, cy]).rotate([rotation[0] + parX * 5, rotation[1] - parY * 4, 0]);
     ctx.clearRect(0, 0, W, H);
 
     // atmosphere bloom
     var ag = ctx.createRadialGradient(cx, cy, ar * 0.92, cx, cy, ar * 1.2);
-    ag.addColorStop(0, "rgba(74,120,255,0)"); ag.addColorStop(0.5, "rgba(92,148,255,0.16)"); ag.addColorStop(1, "rgba(86,140,255,0)");
+    ag.addColorStop(0, pal.atmo[0]); ag.addColorStop(0.5, pal.atmo[1]); ag.addColorStop(1, pal.atmo[2]);
     ctx.beginPath(); ctx.arc(cx, cy, ar * 1.2, 0, 2 * Math.PI); ctx.fillStyle = ag; ctx.fill();
 
     // ocean disk
     var og = ctx.createRadialGradient(cx, cy - ar * 0.6, ar * 0.06, cx, cy, ar);
-    og.addColorStop(0, "#12274f"); og.addColorStop(0.4, "#0a1530"); og.addColorStop(1, "#03060f");
+    og.addColorStop(0, pal.ocean[0]); og.addColorStop(0.4, pal.ocean[1]); og.addColorStop(1, pal.ocean[2]);
     ctx.beginPath(); ctx.arc(cx, cy, ar, 0, 2 * Math.PI); ctx.fillStyle = og; ctx.fill();
 
     // bright rim — full ring in juris view, top arc in hero view
     var a0 = lerp(Math.PI * 1.14, 0, L.p), a1 = lerp(Math.PI * 1.86, 2 * Math.PI, L.p);
     ctx.save();
     ctx.beginPath(); ctx.arc(cx, cy, ar, lerp(Math.PI * 1.1, 0, L.p), lerp(Math.PI * 1.9, 2 * Math.PI, L.p));
-    ctx.strokeStyle = "rgba(110,162,255,0.5)"; ctx.lineWidth = 12; ctx.shadowColor = "rgba(96,150,255,1)"; ctx.shadowBlur = 40; ctx.stroke();
+    ctx.strokeStyle = pal.rimGlow; ctx.lineWidth = 12; ctx.shadowColor = pal.rimShadow; ctx.shadowBlur = pal.rimBlur; ctx.stroke();
     ctx.restore();
     var rg = ctx.createLinearGradient(cx - ar, 0, cx + ar, 0);
-    rg.addColorStop(0, "rgba(70,120,220,0)"); rg.addColorStop(0.3, "rgba(130,178,255,0.6)"); rg.addColorStop(0.5, "rgba(232,242,255,1)"); rg.addColorStop(0.7, "rgba(130,178,255,0.6)"); rg.addColorStop(1, "rgba(70,120,220,0)");
+    rg.addColorStop(0, pal.rim[0]); rg.addColorStop(0.3, pal.rim[1]); rg.addColorStop(0.5, pal.rim[2]); rg.addColorStop(0.7, pal.rim[3]); rg.addColorStop(1, pal.rim[4]);
     ctx.save();
     ctx.beginPath(); ctx.arc(cx, cy, ar, a0, a1); ctx.strokeStyle = rg; ctx.lineWidth = 2.4;
-    ctx.shadowColor = "rgba(170,205,255,0.95)"; ctx.shadowBlur = 18; ctx.stroke(); ctx.restore();
+    ctx.shadowColor = pal.rimShadow2; ctx.shadowBlur = 18; ctx.stroke(); ctx.restore();
 
     ctx.save();
     ctx.beginPath(); ctx.arc(cx, cy, ar, 0, 2 * Math.PI); ctx.clip();
 
     // graticule
-    ctx.beginPath(); path(graticule); ctx.strokeStyle = "rgba(120,165,230,0.10)"; ctx.lineWidth = 0.6; ctx.stroke();
+    ctx.beginPath(); path(graticule); ctx.strokeStyle = pal.graticule; ctx.lineWidth = 0.6; ctx.stroke();
     // land outline
-    if (land) { ctx.beginPath(); land.features.forEach(function (f) { path(f); }); ctx.strokeStyle = "rgba(150,190,245,0.20)"; ctx.lineWidth = 0.6; ctx.stroke(); }
+    if (land) { ctx.beginPath(); land.features.forEach(function (f) { path(f); }); ctx.strokeStyle = pal.land; ctx.lineWidth = 0.6; ctx.stroke(); }
 
     // halftone dots, lifting the hovered country's particles outward
     if (dots.length) {
@@ -188,7 +209,7 @@
           r += 2.2 * ck; a = Math.min(1, a + 0.6 * ck);
           glow = Math.max(glow, ck);
         }
-        ctx.globalAlpha = a; ctx.fillStyle = litT > 0.62 ? "#dbe8ff" : "#9fb8e6";
+        ctx.globalAlpha = a; ctx.fillStyle = litT > 0.62 ? pal.dotLit : pal.dotDim;
         if (glow > 0.15) { ctx.shadowColor = "rgba(140,190,255," + Math.min(1, glow).toFixed(2) + ")"; ctx.shadowBlur = 10 * glow; }
         else { ctx.shadowBlur = 0; }
         ctx.beginPath(); ctx.arc(sx, sy, r, 0, 2 * Math.PI); ctx.fill();
@@ -211,6 +232,12 @@
     markersEl.appendChild(b); return b;
   });
 
+  // extra marker for a searched jurisdiction without a card/JX entry
+  var searchMk = document.createElement("button");
+  searchMk.className = "gmk search-mk"; searchMk.type = "button"; searchMk.style.display = "none";
+  searchMk.setAttribute("aria-hidden", "true");
+  markersEl.appendChild(searchMk);
+
   function placeMarkers() {
     var view = viewVec(), vx = view[0], vy = view[1], vz = view[2];
     var showIso = hoverIso || focusIso;
@@ -224,16 +251,39 @@
       el.style.opacity = (0.45 + 0.55 * depth).toFixed(2);
       el.classList.toggle("on", hot);
     });
+    // marker for a searched (non-card) jurisdiction
+    if (searchPoint) {
+      var sv = cart(searchPoint.lng, searchPoint.lat);
+      var sfront = sv[0] * vx + sv[1] * vy + sv[2] * vz, ssp = projection([searchPoint.lng, searchPoint.lat]);
+      if (sfront > 0.06 && ssp) {
+        searchMk.style.display = "block";
+        var sdepth = Math.max(0, sfront), shot = !hoverIso, ssc = (0.78 + 0.5 * sdepth) * (shot ? 1.45 : 1);
+        searchMk.style.transform = "translate3d(" + ssp[0].toFixed(1) + "px," + ssp[1].toFixed(1) + "px,0) scale(" + ssc.toFixed(3) + ")";
+        searchMk.style.opacity = (0.45 + 0.55 * sdepth).toFixed(2);
+        searchMk.classList.toggle("on", shot);
+      } else searchMk.style.display = "none";
+    } else searchMk.style.display = "none";
+
     if (tip) {
       var d = showIso ? jByIso(showIso) : null;
       if (d) {
         var v = cart(d.lng, d.lat), front = v[0] * vx + v[1] * vy + v[2] * vz, sp = projection([d.lng, d.lat]);
         if (front > 0.06 && sp) {
           tip.style.left = sp[0].toFixed(0) + "px"; tip.style.top = sp[1].toFixed(0) + "px";
-          tip.innerHTML = '<div class="gh"><span class="iso" style="background:' + hexA(d.accent, .2) + ';color:' + d.accent + '">' + d.iso + '</span><span class="gcty">' + d.name + '</span></div>' +
+          tip.innerHTML = '<div class="gh"><span class="iso" style="background:' + hexA(d.accent, .2) + ';color:' + d.accent + '">' + d.iso + '</span><span class="gcty">' + d.name + '<br><small style="font-weight:400;opacity:.6">' + d.region + '</small></span></div>' +
             '<div class="grow"><span>Corp tax</span><b>' + d.tax + '</b></div>' +
             '<div class="grow"><span>Setup</span><b>' + d.setup + '</b></div>' +
+            '<div class="grow"><span>From (year 1)</span><b>' + (d.live ? d.from : "Waitlist") + '</b></div>' +
             (d.live ? '<div class="gbadge">Live for checkout</div>' : '<div class="gbadge soon">Coming soon</div>');
+          tip.classList.add("on");
+        } else tip.classList.remove("on");
+      } else if (searchPoint && !hoverIso) {
+        var sv2 = cart(searchPoint.lng, searchPoint.lat);
+        var sfront2 = sv2[0] * vx + sv2[1] * vy + sv2[2] * vz, ssp2 = projection([searchPoint.lng, searchPoint.lat]);
+        if (sfront2 > 0.06 && ssp2) {
+          tip.style.left = ssp2[0].toFixed(0) + "px"; tip.style.top = ssp2[1].toFixed(0) + "px";
+          tip.innerHTML = '<div class="gh"><span class="iso" style="background:rgba(140,190,255,.2);color:#8cb6ff">' + searchPoint.iso + '</span><span class="gcty">' + searchPoint.name + '</span></div>' +
+            '<div class="grow"><span>Region</span><b>' + searchPoint.region + '</b></div>';
           tip.classList.add("on");
         } else tip.classList.remove("on");
       } else tip.classList.remove("on");
@@ -243,17 +293,23 @@
 
   /* ---------------- interaction ---------------- */
   var dragging = false, lx = 0, ly = 0, resumeAt = 0, velX = 0, velY = 0;
-  canvas.addEventListener("pointerdown", function (e) { dragging = true; lx = e.clientX; ly = e.clientY; velX = 0; velY = 0; focusIso = null; focusRot = null; try { canvas.setPointerCapture(e.pointerId); } catch (err) {} });
-  window.addEventListener("pointermove", function (e) {
+  canvas.addEventListener("pointerdown", function (e) {
+    dragging = true; lx = e.clientX; ly = e.clientY; velX = 0; velY = 0; focusIso = null; focusRot = null;
+    try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+  });
+  function handleMove(e) {
     cursorX = e.clientX; cursorY = e.clientY;
     if (dragging) {
       var dx = e.clientX - lx, dy = e.clientY - ly;
-      rotation[0] += dx * 0.28;
-      rotation[1] -= dy * 0.28;
+      // 1:1 feel: convert screen px to degrees relative to the globe's on-screen radius
+      var scale = 90 / Math.max(1, diskR || 1);
+      rotation[0] += dx * scale;
+      rotation[1] -= dy * scale;
       rotation[1] = Math.max(-90, Math.min(90, rotation[1]));
-      velX = dx * 0.28; velY = -dy * 0.28;
+      velX = dx * scale; velY = -dy * scale;
       lx = e.clientX; ly = e.clientY;
       resumeAt = now() + 2400;
+      return;
     }
     // hover-detect nearest jurisdiction on the globe
     var view = viewVec(), best = null, bestD = 30;
@@ -263,8 +319,11 @@
       var dd = Math.hypot(sp[0] - e.clientX, sp[1] - e.clientY); if (dd < bestD) { bestD = dd; best = d.iso; }
     });
     hoverIso = best;
-  }, { passive: true });
-  window.addEventListener("pointerup", function () { dragging = false; });
+  }
+  canvas.addEventListener("pointermove", handleMove, { passive: true });
+  window.addEventListener("pointermove", function (e) { if (dragging) handleMove(e); else { cursorX = e.clientX; cursorY = e.clientY; } }, { passive: true });
+  window.addEventListener("pointerup", function (e) { dragging = false; try { canvas.releasePointerCapture(e.pointerId); } catch (err) {} });
+  window.addEventListener("pointercancel", function () { dragging = false; });
   window.addEventListener("pointerleave", function () { cursorX = -9999; cursorY = -9999; }, { passive: true });
   window.addEventListener("resize", resize, { passive: true });
 
@@ -279,7 +338,14 @@
       focusRot = d ? [-d.lng, Math.max(-55, Math.min(55, -d.lat))] : null;
       if (d) resumeAt = now() + 4000;
     },
-    isDragging: function () { return dragging; }
+    focusAt: function (lat, lng, meta) {
+      searchPoint = { lat: lat, lng: lng, name: (meta && meta.name) || "", iso: (meta && meta.iso) || "", region: (meta && meta.region) || "" };
+      focusIso = null; focusRot = [-lng, Math.max(-55, Math.min(55, -lat))];
+      resumeAt = now() + 4000;
+    },
+    clearSearch: function () { searchPoint = null; },
+    isDragging: function () { return dragging; },
+    getDisk: function () { return { cx: diskCx, cy: diskCy, r: diskR }; }
   };
 
   /* ---------------- loop ---------------- */

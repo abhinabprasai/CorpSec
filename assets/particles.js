@@ -20,7 +20,6 @@
   var docH = 1;
 
   /* ---- dark-section ranges (page-Y px) for the dissolve tint ---- */
-  var darkSelectors = ["#hero", "#jurisdictions", ".band-dark", ".band-primary"];
   var darkRanges = [];
   function measure() {
     W = window.innerWidth; H = window.innerHeight;
@@ -29,6 +28,8 @@
     canvas.style.width = W + "px"; canvas.style.height = H + "px";
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     darkRanges = [];
+    var light = document.documentElement.dataset.theme === "light";
+    var darkSelectors = light ? [".band-dark", ".band-primary"] : ["#hero", "#jurisdictions", ".band-dark", ".band-primary"];
     darkSelectors.forEach(function (sel) {
       document.querySelectorAll(sel).forEach(function (el) {
         var top = el.offsetTop, h = el.offsetHeight;
@@ -116,6 +117,15 @@
       var sx = g.x + g.ox, ssy = sy + g.oy;
       if (ssy < -4 || ssy > H + 4) continue;
 
+      // hide specks that fall behind the globe sphere
+      if (window.Globe) {
+        var disk = window.Globe.getDisk();
+        if (disk.r > 0) {
+          var gdx = sx - disk.cx, gdy = ssy - disk.cy;
+          if (gdx * gdx + gdy * gdy < disk.r * disk.r) continue;
+        }
+      }
+
       var dk = darkness(g.py);
       var tr = transitionMix(g.py);
 
@@ -127,7 +137,7 @@
       // different angles each instant
       var flicker = reduce ? 1 : 0.7 + 0.3 * Math.random();
 
-      var baseA = (0.12 + 0.16 * dk) * g.base;     // grain base visibility
+      var baseA = (0.2 + 0.16 * dk) * g.base;      // grain base visibility (boosted on light bg too)
       var a = Math.min(0.85, (baseA + tr * 0.16 + disturb * 0.2) * flicker);
       var r = g.r + tr * 0.4 + disturb * 0.5;
 
@@ -141,6 +151,10 @@
   window.addEventListener("resize", measure, { passive: true });
   // re-measure after layout settles (fonts/images can shift section heights)
   setTimeout(measure, 400); setTimeout(measure, 1500);
+  // re-measure dark ranges when the theme toggles
+  if ("MutationObserver" in window) {
+    new MutationObserver(measure).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  }
 
   requestAnimationFrame(frame);
 })();

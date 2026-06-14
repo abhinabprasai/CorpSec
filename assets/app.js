@@ -2,6 +2,20 @@
   "use strict";
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion:reduce)").matches;
 
+  /* ---------- theme switch (dark / light, blue-tinted) ---------- */
+  var root = document.documentElement;
+  var storedTheme = null;
+  try { storedTheme = localStorage.getItem("theme"); } catch (err) {}
+  if (storedTheme === "light" || storedTheme === "dark") root.dataset.theme = storedTheme;
+  var themeToggle = document.getElementById("themeToggle");
+  if (themeToggle) {
+    themeToggle.addEventListener("click", function () {
+      var next = root.dataset.theme === "light" ? "dark" : "light";
+      root.dataset.theme = next;
+      try { localStorage.setItem("theme", next); } catch (err) {}
+    });
+  }
+
   /* ---------- nav: glass on scroll + Dynamic-Island collapse ---------- */
   var nav = document.getElementById("nav");
   var lastY = window.scrollY || 0, ticking = false;
@@ -129,52 +143,97 @@
     });
   }
 
-  /* ---------- jurisdiction cards (premium glass) + globe linkage ---------- */
-  function hexA(hex, a) { var n = parseInt(hex.slice(1), 16); return "rgba(" + (n >> 16 & 255) + "," + (n >> 8 & 255) + "," + (n & 255) + "," + a + ")"; }
+  /* ---------- jurisdiction search (liquid glass) + globe linkage ---------- */
   var JD = window.JURIS_DATA || [];
-  var jcardsEl = document.getElementById("jCards");
-  function jcardHTML(j) {
-    var iso = j.iso.toLowerCase();
-    var badge = j.live ? '<span class="jb jb-live">Live</span>' : '<span class="jb jb-soon">Soon</span>';
-    return '<button type="button" class="jcard" data-iso="' + j.iso + '" ' +
-      'style="--accent:' + j.accent + ';--accent-soft:' + hexA(j.accent, .22) + ';--accent-glow:' + hexA(j.accent, .5) + '">' +
-      '<div class="jcard-top">' +
-        '<span class="jflag-wrap"><img class="jflag" src="https://flagcdn.com/w80/' + iso + '.png" alt="" loading="lazy" width="30" height="30"></span>' +
-        '<span><span class="jcard-name">' + j.name + '</span><span class="jcard-region">' + j.region + '</span></span>' +
-        '<span class="jcard-badges">' + badge + '</span>' +
-      '</div>' +
-      '<div class="jcard-specs">' +
-        '<span class="jspec"><span>Corp tax</span><b>' + j.tax + '</b></span>' +
-        '<span class="jspec"><span>Setup</span><b>' + j.setup + '</b></span>' +
-      '</div>' +
-      '<div class="jcard-from"><span class="lbl">From (year 1)</span><span class="val">' + (j.live ? j.from : "Waitlist") + '</span></div>' +
+  var ALLJ = window.JURISDICTIONS_ALL || [];
+  var searchInput = document.getElementById("jSearchInput");
+  var searchResults = document.getElementById("jSearchResults");
+
+  function norm(s) { return s.replace(/[(),]/g, "").replace(/\s+/g, " ").trim().toLowerCase(); }
+  function jxMatch(name) {
+    for (var i = 0; i < JD.length; i++) if (norm(JD[i].name) === norm(name)) return JD[i];
+    return null;
+  }
+  function selectResult(j) {
+    var jx = jxMatch(j[0]);
+    if (!window.Globe) return;
+    if (jx) { window.Globe.clearSearch(); window.Globe.focus(jx.iso); }
+    else { window.Globe.focus(null); window.Globe.focusAt(j[3], j[4], { name: j[0], iso: j[1].toUpperCase(), region: j[2] }); }
+  }
+  function resultHTML(j, i) {
+    return '<button type="button" class="jresult' + (i === 0 ? " active" : "") + '" data-idx="' + i + '">' +
+      '<img class="jresult-flag" src="https://flagcdn.com/w40/' + j[1] + '.png" alt="" loading="lazy" width="22" height="22">' +
+      '<span class="jresult-name">' + j[0] + '</span>' +
+      '<span class="jresult-region">' + j[2] + '</span>' +
     '</button>';
   }
-  if (jcardsEl && JD.length) {
-    jcardsEl.innerHTML = JD.map(jcardHTML).join("");
-    var jcards = jcardsEl.querySelectorAll(".jcard");
-    function activate(iso) {
-      jcards.forEach(function (c) { c.classList.toggle("active", c.dataset.iso === iso); });
-      if (window.Globe) window.Globe.focus(iso);
-    }
-    jcards.forEach(function (c) {
-      c.addEventListener("mouseenter", function () { activate(c.dataset.iso); });
-      c.addEventListener("focus", function () { activate(c.dataset.iso); });
-      c.addEventListener("click", function () { activate(c.dataset.iso); });
-      c.addEventListener("mouseleave", function () {
-        c.classList.remove("active");
-        if (window.Globe) window.Globe.focus(null);
+  if (searchInput && searchResults && ALLJ.length) {
+    searchInput.addEventListener("input", function () {
+      var q = searchInput.value.trim().toLowerCase();
+      if (!q) {
+        searchResults.innerHTML = "";
+        if (window.Globe) window.Globe.clearSearch();
+        return;
+      }
+      var list = ALLJ.filter(function (j) { return j[0].toLowerCase().indexOf(q) >= 0; }).slice(0, 8);
+      if (!list.length) {
+        searchResults.innerHTML = '<div class="jsearch-empty">No jurisdiction found.</div>';
+        if (window.Globe) window.Globe.clearSearch();
+        return;
+      }
+      searchResults.innerHTML = list.map(resultHTML).join("");
+      searchResults.querySelectorAll(".jresult").forEach(function (btn, i) {
+        btn.addEventListener("mouseenter", function () {
+          searchResults.querySelectorAll(".jresult").forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          selectResult(list[i]);
+        });
+        btn.addEventListener("click", function () {
+          searchResults.querySelectorAll(".jresult").forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          selectResult(list[i]);
+        });
       });
-      c.addEventListener("blur", function () {
-        c.classList.remove("active");
-        if (window.Globe) window.Globe.focus(null);
-      });
+      selectResult(list[0]);
     });
+
+    // quick-select pills for the jurisdictions on the current plan
+    var jquick = document.getElementById("jQuick");
+    if (jquick && JD.length) {
+      jquick.innerHTML = JD.map(function (j) {
+        var badge = j.live ? '<span class="jqpill-badge">Recommended</span>' : '<span class="jqpill-badge soon">Soon</span>';
+        return '<button type="button" class="jqpill" data-iso="' + j.iso + '">' +
+          '<img class="jqpill-flag" src="https://flagcdn.com/w40/' + j.iso.toLowerCase() + '.png" alt="" loading="lazy" width="18" height="18">' +
+          '<span>' + j.name + '</span>' + badge +
+        '</button>';
+      }).join("");
+      jquick.querySelectorAll(".jqpill").forEach(function (btn) {
+        var iso = btn.dataset.iso;
+        btn.addEventListener("mouseenter", function () {
+          jquick.querySelectorAll(".jqpill").forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          if (window.Globe) { window.Globe.clearSearch(); window.Globe.focus(iso); }
+        });
+        btn.addEventListener("click", function () {
+          jquick.querySelectorAll(".jqpill").forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          if (window.Globe) { window.Globe.clearSearch(); window.Globe.focus(iso); }
+        });
+        btn.addEventListener("mouseleave", function () {
+          btn.classList.remove("active");
+          if (window.Globe) window.Globe.focus(null);
+        });
+      });
+    }
+
     var jsec = document.getElementById("jurisdictions");
-    if (jsec && "IntersectionObserver" in window) {
-      new IntersectionObserver(function (es) {
-        es.forEach(function (e) { if (e.isIntersecting && !jcardsEl.querySelector(".jcard.active")) activate(JD[0].iso); });
-      }, { threshold: 0.45 }).observe(jsec);
+    if (jsec && JD.length && "IntersectionObserver" in window) {
+      var jio = new IntersectionObserver(function (es) {
+        es.forEach(function (e) {
+          if (e.isIntersecting) { if (window.Globe) window.Globe.focus(JD[0].iso); jio.unobserve(jsec); }
+        });
+      }, { threshold: 0.45 });
+      jio.observe(jsec);
     }
   }
 
@@ -199,7 +258,7 @@
   });
 
   /* ---------- liquid-glass pointer light (laser glow follows the cursor) ---------- */
-  var GLOW_SEL = ".btn,.card,.j-card,.jcard,.reco-card,.dash-callout,.lg,.nav-inner";
+  var GLOW_SEL = ".btn,.card,.j-card,.jcard,.reco-card,.dash-callout,.lg,.nav-inner,.jsearch-box";
   var tiltEl = null, glowEl = null;
   function clearGlow(el) {
     el.style.setProperty("--mx", "-999px"); el.style.setProperty("--my", "-999px");
@@ -236,6 +295,7 @@
   var heroCenter = document.querySelector(".hero-center");
   var jurisLeft = document.querySelector(".juris2-left");
   var jSec = document.getElementById("jurisdictions");
+  var logobarEl = document.querySelector(".logobar");
   var stars = document.getElementById("spaceStars");
   var scrollCue = document.querySelector(".hero-scrollcue");
   var globeLayer = document.getElementById("globeLayer");
@@ -277,8 +337,13 @@
     }
     if (stars && !reduce) stars.style.transform = "translate3d(" + (cmX * -14).toFixed(1) + "px," + (y * -0.06 + cmY * -10).toFixed(1) + "px,0)";
     if (globeLayer && jSec) {
-      var jb = jSec.offsetTop + jSec.offsetHeight;
-      globeLayer.classList.toggle("parked", y > jb - vh * 0.55);
+      // dark "space" layer covers hero + jurisdictions + the strip, then
+      // fades out exactly as the strip's bottom edge clears the viewport
+      var darkEnd = (logobarEl || jSec).offsetTop + (logobarEl || jSec).offsetHeight;
+      var parkP = clamp01((y - (darkEnd - vh)) / (vh * 0.4));
+      globeLayer.style.opacity = (1 - parkP).toFixed(3);
+      globeLayer.classList.toggle("parked", parkP >= 0.999);
+      if (logobarEl) logobarEl.classList.toggle("on-light", parkP > 0.5 || root.dataset.theme === "light");
     }
   }
   requestAnimationFrame(scene);

@@ -21,6 +21,10 @@
       <a href="#jurisdictions">Coverage</a>
     </nav>
     <div class="nav-actions">
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle light/dark theme">
+        <svg class="ti-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="ti-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      </button>
       <span class="locale" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18"/></svg> EN</span>
       <a href="#" class="btn btn-ghost btn-sm">Dashboard</a>
       <a href="#recommender" class="btn btn-primary btn-sm">Start my company</a>
@@ -76,7 +80,15 @@
         <h2 class="on-dark">Seven jurisdictions,<br />live for checkout today.</h2>
         <p class="sub on-dark-sub">Hover a market — the globe turns to show you exactly where you'll incorporate. Real prices, remote setup, licensed local partners.</p>
       </div>
-      <div class="juris2-cards" id="jCards"></div>
+      <div class="jsearch" id="jSearch">
+        <div class="jsearch-box">
+          <svg class="jsearch-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <input type="text" id="jSearchInput" placeholder="Search any of our 79 jurisdictions…" autocomplete="off" />
+        </div>
+        <div class="jsearch-results" id="jSearchResults"></div>
+        <div class="jquick-label">Recommended jurisdictions on your plan</div>
+        <div class="jquick" id="jQuick"></div>
+      </div>
     </div>
     <div class="juris2-right" aria-hidden="true"></div>
   </div>
