@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CorpSec — Your company, anywhere it matters</title>
+<meta name="description" content="Incorporation, registered address, accounting — across 79 jurisdictions. You tell us where. We handle the rest." />
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+<link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+
+<!-- ===== NAV ===== -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="wordmark" href="#top" aria-label="CorpSec home">Corp<span>/</span>Sec</a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#jurisdictions">Jurisdictions</a>
+      <a href="#backoffice">Services</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#jurisdictions">Coverage</a>
+    </nav>
+    <div class="nav-actions">
+      <span class="locale" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18"/></svg> EN</span>
+      <a href="#" class="btn btn-ghost btn-sm">Dashboard</a>
+      <a href="#recommender" class="btn btn-primary btn-sm">Start my company</a>
+    </div>
+    <button class="nav-burger" id="burger" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav-drawer" id="drawer">
+    <a href="#jurisdictions">Jurisdictions</a>
+    <a href="#backoffice">Services</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#jurisdictions">Coverage</a>
+    <a href="#recommender" class="btn btn-primary">Start my company</a>
+  </div>
+</header>
+
+<!-- ===== PERSISTENT GLOBE LAYER (fixed, spans hero + jurisdictions) ===== -->
+<div class="globe-layer" id="globeLayer" aria-hidden="true">
+  <div class="space-stars" id="spaceStars"></div>
+  <div class="globe-stage" id="globeStage" role="img" aria-label="Interactive globe of incorporation jurisdictions">
+    <canvas id="globeCanvas"></canvas>
+    <div id="globeMarkers"></div>
+    <div class="globe-tip" id="globeTip" aria-hidden="true"></div>
+    <div class="globe-fallback" id="globeFallback"></div>
+  </div>
+</div>
+
+<main id="top">
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="hero">
+  <div class="container">
+    <div class="hero-center" data-par="0.5">
+      <span class="eyebrow">Global incorporation</span>
+      <h1 class="display">Your company,<br />anywhere it matters.</h1>
+      <p class="lede">Incorporation, registered address, accounting — across 79 jurisdictions. You tell us where. We handle the rest.</p>
+      <div class="hero-cta center-cta">
+        <a href="#jurisdictions" class="btn btn-primary btn-lg laser">Find my jurisdiction</a>
+        <a href="#recommender" class="btn btn-ghost btn-lg laser">See how it works →</a>
+      </div>
+    </div>
+    <div class="hero-scrollcue" aria-hidden="true"><span></span>Scroll to explore live markets</div>
+  </div>
+</section>
+
+<!-- ===== JURISDICTIONS (globe docks to the right) ===== -->
+<section class="juris2" id="jurisdictions">
+  <div class="container juris2-grid">
+    <div class="juris2-left">
+      <div class="juris2-head">
+        <span class="eyebrow light">Live markets</span>
+        <h2 class="on-dark">Seven jurisdictions,<br />live for checkout today.</h2>
+        <p class="sub on-dark-sub">Hover a market — the globe turns to show you exactly where you'll incorporate. Real prices, remote setup, licensed local partners.</p>
+      </div>
+      <div class="juris2-cards" id="jCards"></div>
+    </div>
+    <div class="juris2-right" aria-hidden="true"></div>
+  </div>
+</section>
+
+<!-- ===== JURISDICTION STRIP ===== -->
+<section class="logobar">
+  <div class="container">
+    <p class="logobar-label">All <b>79 jurisdictions</b> we cover</p>
+    <div class="jstrip" id="jurisStrip">
+      <div class="jstrip-track" id="jurisStripTrack"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FEAR ===== -->
+<section class="section fear" id="risk">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">The risk</span>
+      <h2>Pick the wrong jurisdiction.<br />Pay six figures to fix it.</h2>
+      <p class="sub">$25–75k — typical legal and accounting fees to re-domicile a mis­incorporated entity. Before tax penalties, before the delayed round, before the founder time burned.</p>
+      <a href="#recommender" class="btn btn-primary">Find the right one, free</a>
+    </div>
+    <div class="cards-3 reveal">
+      <article class="card fear-card">
+        <div class="ic ic-warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.2 1.8 17.6a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.2a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div>
+        <h3>Tax traps</h3>
+        <p>CFC rules, withholding, double-taxation. Margin eaten quietly, often for years before anyone notices.</p>
+      </article>
+      <article class="card fear-card">
+        <div class="ic ic-danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 10h20"/><path d="m15.5 14.5 3 3M18.5 14.5l-3 3"/></svg></div>
+        <h3>Bank rejections</h3>
+        <p>Stripe, Mercury and Wise each have different country lists. The wrong jurisdiction means no banking partner will onboard you.</p>
+      </article>
+      <article class="card fear-card">
+        <div class="ic ic-accent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"/><path d="M5 4c3.5-2 6.5 2 10 0v9c-3.5 2-6.5-2-10 0"/></svg></div>
+        <h3>Investor red flags</h3>
+        <p>VCs read a jurisdiction mismatch as amateur execution. It can quietly block your next round.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== RECOMMENDER ENGINE (dark) ===== -->
+<section class="section band-dark recommender" id="recommender">
+  <div class="container two-col">
+    <div class="reveal">
+      <span class="eyebrow light">The advisor</span>
+      <h2 class="on-dark">Eight questions. Two minutes.<br />The right jurisdiction.</h2>
+      <p class="sub on-dark-sub">Gabriella cross-checks 79 jurisdictions against your tax exposure, banking options, investor optics and residency — then shows you the ranked shortlist with a full explanation of why.</p>
+      <div class="chips">
+        <span class="chip">✓ Free</span><span class="chip">✓ No login</span><span class="chip">✓ No sales call</span>
+      </div>
+      <a href="#recommender" class="btn btn-white">Take the 2-minute assessment</a>
+    </div>
+    <div class="reveal">
+      <div class="steps">
+        <span class="step done">Profile</span><span class="step-sep"></span>
+        <span class="step done">Matching</span><span class="step-sep"></span>
+        <span class="step active">Report ready</span>
+      </div>
+      <div class="reco-card" data-lg data-lg-blur="0.5px">
+        <div class="reco-top">
+          <span class="iso big">SG</span>
+          <div>
+            <div class="reco-name">Singapore <span class="reco-rank">ranked #1</span></div>
+            <div class="reco-meta">Setup 2 days · First year SGD 5,234</div>
+          </div>
+          <span class="reco-tax">Corp tax<br /><b>8.5%</b></span>
+        </div>
+        <div class="reco-banking">
+          <span>Banking</span>
+          <span class="bk">Remote ✓</span><span class="bk">Stripe ✓</span><span class="bk">Wise ✓</span><span class="bk">Mercury ✓</span>
+        </div>
+        <div class="reco-foot">
+          <span class="reco-also">Also considered: Estonia · UK · Delaware</span>
+          <a href="#" class="btn btn-primary btn-sm">Start →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== BACK OFFICE ===== -->
+<section class="section band-tint backoffice" id="backoffice">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">The back office</span>
+      <h2>We run the back office. In any country.</h2>
+      <p class="sub">Every filing, every renewal, every compliance deadline — handled by licensed local partners, surfaced through one dashboard.</p>
+    </div>
+    <div class="tabs reveal" id="boTabs">
+      <button class="tab active" data-tab="form">Form <small>· Stand it up</small></button>
+      <button class="tab" data-tab="operate">Operate <small>· Stay in good standing</small></button>
+      <button class="tab" data-tab="run">Run <small>· Run the finances</small></button>
+    </div>
+    <div class="tab-panels reveal">
+      <div class="tab-panel active" data-panel="form">
+        <div class="panel-copy">
+          <h3>The legal entity, fully formed.</h3>
+          <ul class="ticks">
+            <li>Incorporation</li><li>Share transfers</li><li>Director appointments</li><li>Apostilles</li><li>Share certificates</li>
+          </ul>
+          <p class="from">From <b>£249</b> · United Kingdom</p>
+        </div>
+        <div class="panel-mock"><div class="mini-ui mini-form"></div></div>
+      </div>
+      <div class="tab-panel" data-panel="operate">
+        <div class="panel-copy">
+          <h3>Good standing, kept.</h3>
+          <ul class="ticks">
+            <li>Registered address</li><li>Corporate secretary</li><li>Nominee director</li><li>Annual return</li><li>KYC updates</li>
+          </ul>
+          <p class="from">From <b>£180</b>/year · United Kingdom</p>
+        </div>
+        <div class="panel-mock"><div class="mini-ui mini-operate"></div></div>
+      </div>
+      <div class="tab-panel" data-panel="run">
+        <div class="panel-copy">
+          <h3>The financial machinery your investors will check.</h3>
+          <ul class="ticks">
+            <li>Bookkeeping</li><li>Tax filing</li><li>Payroll</li><li>VAT / GST</li><li>Audit support</li><li>CFO services</li>
+          </ul>
+          <p class="from">From <b>£120</b>/month · United Kingdom</p>
+        </div>
+        <div class="panel-mock"><div class="mini-ui mini-run"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== DASHBOARD PREVIEW (dark mock on light) ===== -->
+<section class="section dashboard" id="pricing">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">One dashboard</span>
+      <h2>Watch a company come to life.</h2>
+      <p class="sub">Every CorpSec customer gets the same dashboard. Status, renewals, filings, documents — surfaced quietly, never demanding.</p>
+    </div>
+    <div class="dash-mock reveal">
+      <aside class="dash-side">
+        <div class="dash-brand">Corp<span>/</span>Sec</div>
+        <a class="dash-nav active">Dashboard</a>
+        <a class="dash-nav">Documents</a>
+        <a class="dash-nav">Filings</a>
+        <a class="dash-nav">Team</a>
+        <a class="dash-nav">Billing</a>
+        <div class="dash-entity">
+          <small>Switch entity</small>
+          <div class="ent active">Vaultly Pte. Ltd. <span>SG</span></div>
+          <div class="ent">Vaultly Ltd. <span>UK</span></div>
+        </div>
+      </aside>
+      <div class="dash-main">
+        <div class="dash-head">
+          <div>
+            <h4>Vaultly Pte. Ltd.</h4>
+            <span class="dash-sub">Singapore · UEN 202612345A</span>
+          </div>
+          <span class="status-pill">Active ✓</span>
+        </div>
+        <div class="dash-timeline">
+          <div class="tl done"><span class="tl-dot"></span>Incorporation complete<small>14 Mar 2026</small></div>
+          <div class="tl done"><span class="tl-dot"></span>Registered address active<small>14 Mar 2026</small></div>
+          <div class="tl due"><span class="tl-dot"></span>Annual return due<small>Dec 2026</small></div>
+          <div class="tl done"><span class="tl-dot"></span>Bookkeeping up to date<small>Q1 reconciled</small></div>
+        </div>
+        <div class="dash-callout" data-lg data-lg-blur="0.5px">
+          <b>Two entities? Twenty? One dashboard.</b>
+          <span>~40% of CorpSec customers run 2–5 entities across countries. One view. One account manager. One invoice.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SOCIAL PROOF ===== -->
+<section class="section social">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">From our clients</span>
+      <h2>Founders who got it right.</h2>
+    </div>
+    <div class="cards-3 reveal">
+      <blockquote class="card quote">
+        <p>“We were stuck deciding between Delaware, Singapore and Estonia for six weeks. CorpSec ran the numbers in two minutes and we incorporated in Estonia the same week. Saved us a $12k legal consultation.”</p>
+        <footer><span class="avatar">MC</span><span><b>Marcus Chen</b><small>Co-founder & CTO, Vaultly · Estonia · SaaS · 2026</small></span></footer>
+      </blockquote>
+      <blockquote class="card quote">
+        <p>“I'd have defaulted to Delaware and regretted it. The recommender flagged that Singapore fit our Asian customer base and banking — set up in two days.”</p>
+        <footer><span class="avatar">AL</span><span><b>Aisha L.</b><small>Founder · Singapore · E-commerce · 2026</small></span></footer>
+      </blockquote>
+      <blockquote class="card quote">
+        <p>“Two entities, two countries, one dashboard and one invoice. I stopped chasing filing deadlines across three providers.”</p>
+        <footer><span class="avatar">TR</span><span><b>Tom R.</b><small>CEO · United Kingdom · Agency · 2026</small></span></footer>
+      </blockquote>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TRUST PILLARS ===== -->
+<section class="section band-tint pillars">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Why CorpSec</span>
+      <h2>Honest pricing. Licensed experts. One dashboard.</h2>
+    </div>
+    <div class="grid-4 pillars-grid reveal">
+      <div class="pillar"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7h14"/><path d="M7 3h10"/><path d="m5 7-3 6a3 3 0 0 0 6 0L5 7Z"/><path d="m19 7-3 6a3 3 0 0 0 6 0l-3-6Z"/><path d="M8 21h8"/></svg></div><h3>We don't sell you a jurisdiction</h3><p>Gabriella recommends the best option for your situation, not the one we make the most margin on.</p></div>
+      <div class="pillar"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 4.5 5.5v5c0 4.7 3.2 8.4 7.5 10 4.3-1.6 7.5-5.3 7.5-10v-5L12 2.5Z"/><path d="m9 12 2 2 4-4"/></svg></div><h3>Licensed professionals, not freelancers</h3><p>Every jurisdiction uses a regulated CSP with professional indemnity. Powered by Koulier, Bookiper and 30+ partners.</p></div>
+      <div class="pillar"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14a1 1 0 0 1 1 1v17l-3-2-2 2-3-2-3 2-2-2-3 2V4a1 1 0 0 1 1-1Z"/><path d="M8.5 8h7"/><path d="M8.5 12h7"/><path d="M8.5 16h4"/></svg></div><h3>Real prices, not generic tiers</h3><p>400+ entries across 79 jurisdictions. Government fees itemised. Annual costs shown before you decide.</p></div>
+      <div class="pillar"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/></svg></div><h3>One view for every entity</h3><p>Filings, renewals, documents, bookkeeping — one place, one company or twenty.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== INTEGRATIONS ===== -->
+<section class="section integrations">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Your stack, connected</span>
+      <h2>Built to fit the tools you already live in.</h2>
+      <p class="sub">Bank with Mercury, Wise or your local partner. Pay with Stripe. Manage cap tables in Carta or Pulley. We hand off cleanly.</p>
+    </div>
+    <div class="marquee reveal">
+      <div class="logos integ-logos">
+        <span>Stripe</span><span>Wise</span><span>Mercury</span><span>Carta</span><span>Pulley</span><span>Revolut</span><span>Brex</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FINAL CTA ===== -->
+<section class="section band-primary finalcta">
+  <div class="container center reveal">
+    <h2 class="on-dark">Start where it actually matters.</h2>
+    <p class="sub on-dark-sub">Formation, address, accounting — in 48h on average. Not sure where to begin? Two minutes. No login.</p>
+    <div class="hero-cta center-cta">
+      <a href="#recommender" class="btn btn-white btn-lg">Find my jurisdiction</a>
+      <a href="#" class="btn btn-ghost-light btn-lg">Talk to a specialist</a>
+    </div>
+    <p class="cta-trust">79 jurisdictions · 19 services · 500+ founders incorporated</p>
+  </div>
+</section>
+
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <a class="wordmark on-dark" href="#top">Corp<span>/</span>Sec</a>
+      <p>Your company, anywhere it matters.</p>
+    </div>
+    <div><h4>Decide</h4><a href="#recommender">Gabriella</a><a href="#jurisdictions">All jurisdictions</a><a href="#jurisdictions">Compare</a><a href="#pricing">Pricing</a></div>
+    <div><h4>Operate</h4><a href="#backoffice">All services</a><a href="#backoffice">Company formation</a><a href="#backoffice">Registered address</a><a href="#backoffice">Accounting & tax</a></div>
+    <div><h4>Legal & contact</h4><a href="#">Terms</a><a href="#">Privacy</a><a href="#">Legal notice</a><a href="#">hello@corpsec.io</a></div>
+  </div>
+  <div class="container footer-bottom">
+    <span>© 2026 CorpSec — Your company, anywhere it matters</span>
+    <span class="locale">EN · USD</span>
+    <svg class="footer-mark" viewBox="0 0 43 43" fill="none" aria-hidden="true"><path fill="#533afd" fill-rule="evenodd" d="m0 43 43-9.119V0L0 9.226V43Z" clip-rule="evenodd"/></svg>
+  </div>
+</footer>
+
+<script src="assets/d3.v7.min.js"></script>
+<script src="assets/globe.js"></script>
+<script src="assets/jurisdictions.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/liquidglass.js"></script>
+<script src="assets/particles.js"></script>
+</body>
+</html>
