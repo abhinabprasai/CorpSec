@@ -107,28 +107,140 @@
 <!-- ===== FEAR ===== -->
 <section class="section fear" id="risk">
   <div class="container">
-    <div class="section-head reveal">
+    <div class="section-head bento-head reveal">
       <span class="eyebrow">The risk</span>
-      <h2>Pick the wrong jurisdiction.<br />Pay six figures to fix it.</h2>
-      <p class="sub">$25–75k — typical legal and accounting fees to re-domicile a mis­incorporated entity. Before tax penalties, before the delayed round, before the founder time burned.</p>
+      <h2 class="bento-headline"><span class="lead">Pick the wrong jurisdiction once.</span> <span class="rest">Then spend years — and well into six figures — paying tax authorities, banks, lawyers, and investors to undo a single line on a certificate of incorporation.</span></h2>
+      <p class="sub">We recommend the right fit across 79 jurisdictions, not the one that pays us most.</p>
       <a href="#recommender" class="btn btn-primary">Find the right one, free</a>
     </div>
-    <div class="cards-3 reveal">
-      <article class="card fear-card">
-        <div class="ic ic-warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.2 1.8 17.6a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.2a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div>
-        <h3>Tax traps</h3>
-        <p>CFC rules, withholding, double-taxation. Margin eaten quietly, often for years before anyone notices.</p>
-      </article>
-      <article class="card fear-card">
-        <div class="ic ic-danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 10h20"/><path d="m15.5 14.5 3 3M18.5 14.5l-3 3"/></svg></div>
-        <h3>Bank rejections</h3>
-        <p>Stripe, Mercury and Wise each have different country lists. The wrong jurisdiction means no banking partner will onboard you.</p>
-      </article>
-      <article class="card fear-card">
-        <div class="ic ic-accent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"/><path d="M5 4c3.5-2 6.5 2 10 0v9c-3.5 2-6.5-2-10 0"/></svg></div>
-        <h3>Investor red flags</h3>
-        <p>VCs read a jurisdiction mismatch as amateur execution. It can quietly block your next round.</p>
-      </article>
+    <div class="bento reveal">
+      <div class="bento-grid">
+
+        <!-- GLOBE (large) -->
+        <article class="bento-card bento-card--globe" data-bento-card>
+          <div class="bento-card__bg"></div>
+          <div class="bento-card__gfx gfx-globe" aria-hidden="true">
+            <canvas class="bento-gfx" data-gfx="globe"></canvas>
+            <span class="bank-pill bank-pill--1">Stripe<i class="bp-dot bp-no"></i></span>
+            <span class="bank-pill bank-pill--2">Mercury<i class="bp-dot bp-ok"></i></span>
+            <span class="bank-pill bank-pill--3">Wise<i class="bp-dot bp-no"></i></span>
+            <span class="gfx-stat">3 providers · 3 country lists</span>
+          </div>
+          <div class="bento-card__inner">
+            <h3 class="bento-card__title">Your incorporation country, not where you live, decides whether Stripe, Mercury, and Wise will onboard you.</h3>
+            <p class="bento-card__support">Each processor and neobank gates accounts by a fixed country list.</p>
+          </div>
+          <span class="bento-card__expand" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2H2v4M10 14h4v-4M2 2l5 5M14 14l-5-5"/></svg></span>
+          <div class="bento-card__border" aria-hidden="true"><div class="bento-card__border-glow"></div></div>
+        </article>
+
+        <!-- CHART (tall) -->
+        <article class="bento-card bento-card--chart" data-bento-card>
+          <div class="bento-card__bg"></div>
+          <div class="bento-card__gfx gfx-chart" aria-hidden="true">
+            <div class="chart-readout">
+              <span class="chart-num" data-leak>$0</span>
+              <span class="chart-cap">Cumulative leakage</span>
+            </div>
+            <div class="chart-bars">
+              <i style="--h:18%"></i><i style="--h:26%"></i><i style="--h:22%"></i><i style="--h:38%"></i><i style="--h:34%"></i><i style="--h:52%"></i><i style="--h:48%"></i><i style="--h:66%"></i><i style="--h:74%"></i><i style="--h:92%"></i>
+            </div>
+            <span class="gfx-stat warn">Margin eroded</span>
+          </div>
+          <div class="bento-card__inner">
+            <h3 class="bento-card__title">A zero-tax offshore jurisdiction can still be taxed at home, as CFC rules and untreatied withholding erode every cross-border dollar.</h3>
+            <p class="bento-card__support">Tax follows the people who control the company, not the registry.</p>
+          </div>
+          <span class="bento-card__expand" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2H2v4M10 14h4v-4M2 2l5 5M14 14l-5-5"/></svg></span>
+          <div class="bento-card__border" aria-hidden="true"><div class="bento-card__border-glow"></div></div>
+        </article>
+
+        <!-- BURST (medium) -->
+        <article class="bento-card bento-card--burst" data-bento-card>
+          <div class="bento-card__bg"></div>
+          <div class="bento-card__gfx gfx-burst" aria-hidden="true">
+            <canvas class="bento-gfx" data-gfx="burst"></canvas>
+            <div class="mini-doc">
+              <div class="mini-doc__top"><span class="mini-doc__tag">Term sheet</span></div>
+              <div class="mini-doc__line"></div>
+              <div class="mini-doc__line w70"></div>
+              <div class="mini-doc__line w85"></div>
+              <div class="mini-doc__foot"><span class="mini-doc__chip">Due diligence</span></div>
+            </div>
+            <span class="gfx-stat danger">Round stalled</span>
+          </div>
+          <div class="bento-card__inner">
+            <h3 class="bento-card__title">VCs read a jurisdiction mismatch as amateur execution, and a non-Delaware entity can stall the round mid-diligence.</h3>
+            <p class="bento-card__support">Most US venture money requires a Delaware C-corp.</p>
+          </div>
+          <span class="bento-card__expand" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2H2v4M10 14h4v-4M2 2l5 5M14 14l-5-5"/></svg></span>
+          <div class="bento-card__border" aria-hidden="true"><div class="bento-card__border-glow"></div></div>
+        </article>
+
+        <!-- HOLO (medium) -->
+        <article class="bento-card bento-card--holo" data-bento-card>
+          <div class="bento-card__bg"></div>
+          <div class="bento-card__gfx gfx-holo" aria-hidden="true">
+            <div class="holo-card">
+              <div class="holo-card__sheen"></div>
+              <div class="holo-card__seal"></div>
+              <div class="holo-card__label">Certificate of Incorporation</div>
+              <div class="holo-card__cost">$25–75k</div>
+            </div>
+          </div>
+          <div class="bento-card__inner">
+            <h3 class="bento-card__title">Re-domiciling a mis-incorporated entity is a full cross-border reorganization, with legal and accounting fees that routinely run five figures.</h3>
+            <p class="bento-card__support">The flip triggers tax advice in two countries and fresh consents.</p>
+          </div>
+          <span class="bento-card__expand" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2H2v4M10 14h4v-4M2 2l5 5M14 14l-5-5"/></svg></span>
+          <div class="bento-card__border" aria-hidden="true"><div class="bento-card__border-glow"></div></div>
+        </article>
+
+        <!-- SUBSTANCE (medium) -->
+        <article class="bento-card bento-card--substance" data-bento-card>
+          <div class="bento-card__bg"></div>
+          <div class="bento-card__gfx gfx-substance" aria-hidden="true">
+            <div class="meter" data-meter>
+              <svg viewBox="0 0 120 120">
+                <circle class="meter__track" cx="60" cy="60" r="50"/>
+                <circle class="meter__fill" cx="60" cy="60" r="50"/>
+              </svg>
+              <div class="meter__center"><b>Low</b><small>Substance level</small></div>
+            </div>
+            <span class="flag-tag">Grey-list watch</span>
+            <span class="gfx-stat warn">Substance: low</span>
+          </div>
+          <div class="bento-card__inner">
+            <h3 class="bento-card__title">Offshore hubs now demand real economic substance, and a single grey- or blacklisting can taint your banking and tax position overnight.</h3>
+            <p class="bento-card__support">Lists change after you incorporate, often with little warning.</p>
+          </div>
+          <span class="bento-card__expand" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2H2v4M10 14h4v-4M2 2l5 5M14 14l-5-5"/></svg></span>
+          <div class="bento-card__border" aria-hidden="true"><div class="bento-card__border-glow"></div></div>
+        </article>
+
+        <!-- TABLE (full width) -->
+        <article class="bento-card bento-card--table" data-bento-card>
+          <div class="bento-card__bg"></div>
+          <div class="bento-card__inner">
+            <div class="bento-card__text-col">
+              <h3 class="bento-card__title">Across multiple entities, one missed annual filing can administratively dissolve the company that holds your IP, bank, and cap table.</h3>
+              <p class="bento-card__support">Lost good standing surfaces at the worst moment — mid-raise.</p>
+              <span class="gfx-stat danger">3 entities · 2 overdue</span>
+            </div>
+            <div class="ent-table" aria-hidden="true">
+              <div class="ent-row ent-head"><span>Entity</span><span>Country</span><span>Filing</span><span>Status</span></div>
+              <div class="ent-row"><span>HoldCo</span><span>BVI</span><span>Economic substance</span><span class="st st-over">Overdue</span></div>
+              <div class="ent-row"><span>TopCo</span><span>Delaware</span><span>Franchise tax</span><span class="st st-due">Due</span></div>
+              <div class="ent-row"><span>OpCo</span><span>UK</span><span>Confirmation stmt</span><span class="st st-over">Overdue</span></div>
+              <div class="ent-row"><span>IP Co</span><span>Cayman</span><span>Annual return</span><span class="st st-due">Due</span></div>
+              <div class="ent-row"><span>SubCo</span><span>Singapore</span><span>Annual filing</span><span class="st st-ok">Filed</span></div>
+            </div>
+          </div>
+          <span class="bento-card__expand" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2H2v4M10 14h4v-4M2 2l5 5M14 14l-5-5"/></svg></span>
+          <div class="bento-card__border" aria-hidden="true"><div class="bento-card__border-glow"></div></div>
+        </article>
+
+      </div>
     </div>
   </div>
 </section>
@@ -361,5 +473,6 @@
 <script src="assets/app.js"></script>
 <script src="assets/liquidglass.js"></script>
 <script src="assets/particles.js"></script>
+<script type="module" src="assets/bento3d.js"></script>
 </body>
 </html>

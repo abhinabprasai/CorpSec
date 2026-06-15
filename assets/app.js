@@ -290,6 +290,58 @@
     if (glowEl) { clearGlow(glowEl); glowEl = null; }
   });
 
+  /* ---------- bento cards: tilt + grow + mouse-tracking border glow ---------- */
+  document.querySelectorAll(".bento-card").forEach(function (card) {
+    card.addEventListener("pointermove", function (e) {
+      var r = card.getBoundingClientRect();
+      var mx = e.clientX - r.left, my = e.clientY - r.top;
+      card.style.setProperty("--card-mouse-x", mx.toFixed(1) + "px");
+      card.style.setProperty("--card-mouse-y", my.toFixed(1) + "px");
+      if (reduce) return;
+      var px = mx / r.width - 0.5, py = my / r.height - 0.5;   // -0.5..0.5
+      card.style.setProperty("--card-rot-x", (py * -6).toFixed(2) + "deg");
+      card.style.setProperty("--card-rot-y", (px * 6).toFixed(2) + "deg");
+      card.style.setProperty("--card-shift-x", (px * 10).toFixed(2) + "px");
+      card.style.setProperty("--card-shift-y", (py * 10).toFixed(2) + "px");
+      card.style.setProperty("--card-grow-x", Math.abs(px * 8).toFixed(2));
+      card.style.setProperty("--card-grow-y", Math.abs(py * 8).toFixed(2));
+    }, { passive: true });
+    card.addEventListener("pointerleave", function () {
+      card.style.setProperty("--card-rot-x", "0deg");
+      card.style.setProperty("--card-rot-y", "0deg");
+      card.style.setProperty("--card-shift-x", "0px");
+      card.style.setProperty("--card-shift-y", "0px");
+      card.style.setProperty("--card-grow-x", "0");
+      card.style.setProperty("--card-grow-y", "0");
+    });
+  });
+
+  /* ---------- bento: scroll-in triggers (chart bars, substance meter) ---------- */
+  if ("IntersectionObserver" in window) {
+    var bio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add("in"); bio.unobserve(en.target); } });
+    }, { threshold: 0.25 });
+    document.querySelectorAll(".bento-card--chart,.bento-card--substance").forEach(function (c) { bio.observe(c); });
+  } else {
+    document.querySelectorAll(".bento-card--chart,.bento-card--substance").forEach(function (c) { c.classList.add("in"); });
+  }
+
+  /* ---------- bento: live "cumulative leakage" odometer (chart card) ---------- */
+  var leakEl = document.querySelector("[data-leak]");
+  if (leakEl) {
+    var leakVal = 48213, leakOn = false;
+    var fmt = function (n) { return "$" + Math.floor(n).toLocaleString("en-US"); };
+    leakEl.textContent = fmt(leakVal);
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (es) { leakOn = es[0].isIntersecting; }, { threshold: 0.15 }).observe(leakEl);
+    } else { leakOn = true; }
+    setInterval(function () {
+      if (!leakOn || document.hidden || reduce) return;
+      leakVal += 137 + Math.floor(Math.random() * 420);
+      leakEl.textContent = fmt(leakVal);
+    }, 90);
+  }
+
   /* ---------- the "scene": scroll progress, parallax, dissolve, dock ---------- */
   var heroEl = document.getElementById("hero");
   var heroCenter = document.querySelector(".hero-center");
@@ -338,10 +390,11 @@
     if (stars && !reduce) stars.style.transform = "translate3d(" + (cmX * -14).toFixed(1) + "px," + (y * -0.06 + cmY * -10).toFixed(1) + "px,0)";
     if (globeLayer && jSec) {
       // dark "space" layer covers hero + jurisdictions + the strip, then
-      // fades out exactly as the strip's bottom edge clears the viewport
+      // scrolls up and fades out exactly as the strip's bottom edge clears the viewport
       var darkEnd = (logobarEl || jSec).offsetTop + (logobarEl || jSec).offsetHeight;
       var parkP = clamp01((y - (darkEnd - vh)) / (vh * 0.4));
       globeLayer.style.opacity = (1 - parkP).toFixed(3);
+      globeLayer.style.transform = "translate3d(0," + (-parkP * vh * 0.6).toFixed(1) + "px,0)";
       globeLayer.classList.toggle("parked", parkP >= 0.999);
       if (logobarEl) logobarEl.classList.toggle("on-light", parkP > 0.5 || root.dataset.theme === "light");
     }
