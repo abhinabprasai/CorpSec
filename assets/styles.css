@@ -99,6 +99,14 @@ img,canvas{max-width:100%;display:block}
 
 .container{max-width:var(--maxw);margin:0 auto;padding:0 40px}
 .center{text-align:center}
+
+/* ---------- persistent edge rails (run the full page height) ---------- */
+body::before,body::after{
+  content:"";position:fixed;top:0;bottom:0;width:1px;background:var(--n100);
+  z-index:3;pointer-events:none;opacity:.7;transition:opacity .4s var(--ease-soft,ease)}
+body.rails-hidden::before,body.rails-hidden::after{opacity:0}
+body::before{left:calc(50vw - var(--maxw) / 2)}
+body::after{right:calc(50vw - var(--maxw) / 2)}
 .muted{color:var(--ink-quiet)}
 
 .eyebrow{display:inline-block;font-size:13px;font-weight:600;letter-spacing:.01em;color:var(--brand);margin-bottom:16px}
@@ -108,7 +116,7 @@ img,canvas{max-width:100%;display:block}
 .section::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:var(--border)}
 .band-dark::before,.band-primary::before,.hero::before{display:none}
 .section-head{max-width:720px;margin:0 auto 56px;text-align:center}
-.section-head h2{font-size:clamp(30px,4.1vw,46px)}
+.section-head h2{font-size:clamp(24px,3.2vw,36px)}
 .sub{font-size:19px;color:var(--ink-soft);margin-top:18px;line-height:1.5;font-weight:400}
 .section-head .btn{margin-top:30px}
 
@@ -465,7 +473,7 @@ main{position:relative;z-index:1}
 .fear-card p{font-size:15px;color:var(--ink-soft)}
 
 /* ===================== bento grid (risk section) ===================== */
-.bento-head{max-width:900px}
+.bento-head{max-width:820px;margin:0 0 56px;text-align:left}
 .bento-headline{font-size:clamp(23px,2.85vw,38px);font-weight:600;letter-spacing:-.02em;line-height:1.22}
 .bento-headline .lead{color:var(--ink)}
 .bento-headline .rest{color:var(--n400)}
@@ -629,6 +637,73 @@ main{position:relative;z-index:1}
 .st-due{color:#9a6a00;background:#fff3da}
 .st-ok{color:#1c8c4e;background:#e6f6ed}
 
+/* ===================== proof / testimonial bento ===================== */
+
+/* bento grid: tall feature (col1, 2 rows) + wide (cols2-3, row1) + 2 cycle cards (row2) */
+.proof-bento{display:grid;grid-template-columns:1fr 1fr 1fr;grid-auto-rows:236px;gap:18px;margin-top:6px}
+.pcard--feature{grid-column:1;grid-row:1 / span 2}
+.pcard--wide{grid-column:2 / span 2;grid-row:1}
+.pcard--cycle:nth-of-type(3){grid-column:2;grid-row:2}
+.pcard--cycle:nth-of-type(4){grid-column:3;grid-row:2}
+
+.pcard__inner{display:flex;flex-direction:column;gap:0;justify-content:space-between;height:100%}
+.pcard-gfx{position:absolute;inset:0;width:100%;height:100%;z-index:0;opacity:.45;pointer-events:none;will-change:opacity;backface-visibility:hidden;transform:translateZ(0)}
+.pcard--feature{position:relative}
+.pcard--feature .pcard__inner{position:relative;z-index:2}
+.pcard--feature .bento-card__border,.pcard--feature .bento-card__border-glow{z-index:2}
+
+/* metric */
+.pcard__metric{display:flex;flex-direction:column;gap:4px}
+.pcard__metric--row{flex-direction:row;align-items:baseline;gap:14px;flex-wrap:wrap}
+.pnum{font-size:42px;font-weight:650;letter-spacing:-.03em;color:var(--ink);line-height:1;font-variant-numeric:tabular-nums}
+.pcard--feature .pnum{font-size:54px}
+.pnum-cap{font-size:14px;font-weight:500;color:var(--ink-soft);max-width:24ch;line-height:1.35}
+.pcard__metric--row .pnum-cap{max-width:30ch}
+
+/* quote */
+.pquote{position:relative}
+.pquote-mark{display:block;font-family:Georgia,serif;font-size:34px;line-height:.4;color:var(--brand);opacity:.35;height:14px}
+.pquote p{font-size:14.5px;line-height:1.58;color:var(--ink);margin-top:10px}
+.pcard--feature .pquote p{font-size:15.5px}
+
+/* person row */
+.pperson{display:flex;align-items:center;gap:11px}
+.pphoto{width:44px;height:44px;border-radius:50%;object-fit:cover;flex:0 0 auto;background:var(--n50);
+  box-shadow:0 0 0 1px var(--n100),var(--sh-xs)}
+.pcard--cycle .pphoto{width:36px;height:36px}
+.pperson-meta{min-width:0;flex:1}
+.pperson-meta b{display:block;font-size:13.5px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+.pperson-meta small{display:block;font-size:11.5px;color:var(--ink-quiet);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pbrand{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;
+  border-radius:8px;color:var(--ink-soft);background:var(--n25);border:1px solid var(--n100)}
+.pbrand-lg{width:34px;height:34px}
+
+/* autoscrolling cycle cards */
+.pcycle-viewport{position:relative;z-index:1;height:100%;overflow:hidden}
+.pcycle-track{display:flex;flex-direction:column;will-change:transform;
+  transition:transform .8s var(--ease-soft)}
+.pcycle-slide{height:236px;flex:0 0 236px;display:flex;flex-direction:column;justify-content:space-between;
+  padding:26px 26px 24px}
+.pcycle-slide p{font-size:14px;line-height:1.55;color:inherit;margin-top:10px}
+
+/* dark highlight state (roves between the two cycle cards) */
+.pcard--cycle.is-dark{background:var(--night)}
+.pcard--cycle.is-dark .bento-card__border{box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.pcard--cycle.is-dark .pquote-mark{color:var(--brand-300);opacity:.6}
+.pcard--cycle.is-dark .pcycle-slide p,
+.pcard--cycle.is-dark .pperson-meta b{color:#fff}
+.pcard--cycle.is-dark .pperson-meta small{color:#9fb0c4}
+.pcard--cycle.is-dark .pphoto{box-shadow:0 0 0 1px rgba(255,255,255,.14),var(--sh-xs)}
+
+/* footer strip */
+.proof-foot{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-top:34px;flex-wrap:wrap}
+.proof-foot__clients{font-size:14px;color:var(--ink-soft)}
+.proof-foot__rating{display:inline-flex;align-items:center;gap:9px}
+.proof-foot__rating b{font-size:15px;font-weight:650;color:var(--ink)}
+.proof-foot__rating small{font-size:12.5px;color:var(--ink-quiet)}
+.proof-foot__btn{flex:0 0 auto}
+.proof-stars{font-size:15px;letter-spacing:.14em;color:var(--brand)}
+
 /* ---------- two col / recommender (dark) ---------- */
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
 .two-col h2{font-size:clamp(27px,3.5vw,40px)}
@@ -778,6 +853,40 @@ main{position:relative;z-index:1}
 .quote footer b{display:block;font-size:14px;font-weight:600}
 .quote footer small{font-size:12px;color:var(--ink-quiet)}
 
+/* ---------- pricing ---------- */
+.pricing-grid{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:minmax(280px,auto);gap:18px;margin-top:6px}
+.price-card--free{grid-column:1;grid-row:1}
+.price-card--enterprise{grid-column:2;grid-row:1 / span 2}
+.price-card--starter{grid-column:1;grid-row:2}
+.price-card__inner{display:grid;grid-template-columns:1fr auto 1fr;gap:30px;padding:32px;height:100%}
+.price-card__col{display:flex;flex-direction:column;gap:14px}
+.price-card__col--main .price-card__cta{margin-top:auto}
+.price-card__col--meta{justify-content:space-between;gap:24px}
+.price-card__divider{width:1px;background:var(--border)}
+.price-card__divider--h{width:100%;height:1px;margin:24px 0}
+.price-tag{display:inline-flex;align-items:center;align-self:flex-start;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);background:var(--n50);border-radius:var(--r-sm);padding:6px 10px}
+.price-tag--accent{background:var(--brand-50);color:var(--brand-700)}
+.price-card__name{font-size:34px;font-weight:650;letter-spacing:-.02em;margin-top:2px}
+.price-card__desc{font-size:14.5px;color:var(--ink-soft);line-height:1.55;max-width:34ch}
+.price-card__cta{align-self:flex-start}
+.price-meta{display:flex;flex-direction:column;gap:10px}
+.price-meta--row{flex-direction:row;align-items:center;gap:32px}
+.price-meta__item{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-soft)}
+.price-meta__item svg{flex:0 0 15px;color:var(--ink-quiet)}
+.price-card__includes{padding-top:18px;border-top:1px solid var(--border)}
+.price-card__label{display:block;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-quiet);margin-bottom:12px}
+.price-card__list{list-style:none;display:flex;flex-direction:column;gap:10px}
+.price-card__list li{display:flex;align-items:flex-start;gap:9px;font-size:13.5px;color:var(--ink-soft)}
+.price-card__list li svg{flex:0 0 15px;margin-top:1px;color:var(--green)}
+.price-card__list--2col{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px}
+.price-card__inner--enterprise{display:flex;flex-direction:column;padding:32px}
+.price-card__top{display:flex;gap:28px;align-items:flex-start}
+.price-card__top .price-card__col--main{flex:1}
+.price-globe{position:relative;flex:0 0 232px;height:208px;border-radius:var(--r-lg);overflow:hidden;
+  background:linear-gradient(150deg,var(--brand-700),var(--brand) 55%,var(--brand-300))}
+.price-globe__gfx{position:absolute;inset:0;width:100%;height:100%}
+.pricing-foot{margin-top:28px;display:flex;justify-content:center}
+
 /* ---------- pillars ---------- */
 .pillars-grid{gap:24px}
 .pillar .ic{width:46px;height:46px;border-radius:var(--r-md);background:var(--brand-50);color:var(--brand);display:flex;align-items:center;justify-content:center;margin-bottom:18px}
@@ -916,6 +1025,12 @@ main{position:relative;z-index:1}
   .bento-card--table{min-height:auto}
   .bento-card--table .bento-card__inner{flex-direction:column;align-items:flex-start;gap:22px}
   .bento-card__text-col,.bento-card--table .bento-card__text-col{flex:none;max-width:none}
+  /* proof testimonial bento → stack */
+  .proof-bento{grid-template-columns:1fr;grid-auto-rows:auto}
+  .pcard{grid-column:auto !important;grid-row:auto !important;min-height:300px}
+  .pcard--feature{min-height:360px}
+  .pcycle-slide{height:300px;flex-basis:300px}
+  .proof-foot{flex-direction:column;align-items:flex-start;gap:14px}
   /* jurisdictions: globe sits behind, cards stack on top (glass) */
   .juris2{min-height:auto;padding:120px 0 90px}
   .juris2-grid{grid-template-columns:1fr;gap:22px}

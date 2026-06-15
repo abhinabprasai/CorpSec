@@ -225,6 +225,52 @@ function buildBurst() {
   };
 }
 
+/* ---------------- PROOF GEO scene (minimal dotted icosahedron) ---------------- */
+/* A slowly-rotating geometric solid: soft points on a subdivided icosahedron
+   with a faint wireframe. Same clean look as the bento cards, sits behind the
+   testimonial copy. */
+function buildProofGeo() {
+  const group = new THREE.Group();
+  const R = 1.18;
+
+  // soft points sampled on the icosahedron's subdivided vertices
+  const ico = new THREE.IcosahedronGeometry(R, 3);
+  const N = ico.attributes.position.count;
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.BufferAttribute(ico.attributes.position.array.slice(), 3));
+  g.setAttribute("color", new THREE.BufferAttribute(colorAttr(N, function (i, n) {
+    const k = i / n;
+    return k < 0.22 ? COL.cyan : (k < 0.55 ? COL.brand300 : COL.brand);
+  }), 3));
+  g.setAttribute("aPhase", new THREE.BufferAttribute(phaseAttr(N), 1));
+  const dotMat = pointMaterial(0.016, 0.62);
+  const dots = new THREE.Points(g, dotMat);
+  group.add(dots);
+  ico.dispose();
+
+  // faint low-poly wireframe shell
+  const wireSrc = new THREE.IcosahedronGeometry(R, 1);
+  const wire = new THREE.WireframeGeometry(wireSrc);
+  const lm = new THREE.LineBasicMaterial({ color: COL.brand300, transparent: true, opacity: 0.1, depthWrite: false, depthTest: false });
+  group.add(new THREE.LineSegments(wire, lm));
+  wireSrc.dispose();
+
+  group.rotation.x = 0.32;
+  group.position.set(0.15, 0.25, 0); // nudge up/right, out of the copy's way
+
+  return {
+    object: group,
+    materials: [dotMat],
+    update: function (t, dt) {
+      group.rotation.y += dt * 0.16;
+      group.rotation.x = 0.32 - pY * 0.14;
+      group.rotation.z = pX * 0.09;
+      dotMat.uniforms.uTime.value = t;
+    },
+    cameraZ: 3.5,
+  };
+}
+
 /* ---------------- per-card instance ---------------- */
 function makeInstance(canvas, builder) {
   let renderer;
@@ -272,6 +318,7 @@ function boot() {
   const specs = [
     { sel: 'canvas[data-gfx="globe"]', build: buildGlobe },
     { sel: 'canvas[data-gfx="burst"]', build: buildBurst },
+    { sel: 'canvas[data-gfx="proofgeo"]', build: buildProofGeo },
   ];
   const instances = [];
   specs.forEach(function (s) {
@@ -282,13 +329,17 @@ function boot() {
   });
   if (!instances.length) return;
 
-  // only animate while the risk section is on screen
+  // only animate while a card-bearing section (risk or proof) is on screen
   let visible = true;
-  const section = document.getElementById("risk");
-  if (section && "IntersectionObserver" in window) {
-    new IntersectionObserver(function (es) {
-      visible = es[0].isIntersecting && !document.hidden;
-    }, { threshold: 0 }).observe(section);
+  const watched = [document.getElementById("risk"), document.getElementById("proof")].filter(Boolean);
+  if (watched.length && "IntersectionObserver" in window) {
+    const vis = new Map();
+    const secIO = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { vis.set(e.target, e.isIntersecting); });
+      let any = false; vis.forEach(function (v) { if (v) any = true; });
+      visible = any && !document.hidden;
+    }, { threshold: 0 });
+    watched.forEach(function (s) { secIO.observe(s); });
   }
   document.addEventListener("visibilitychange", function () { visible = !document.hidden; });
 

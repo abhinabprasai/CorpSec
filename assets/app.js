@@ -77,6 +77,86 @@
     }, 1600);
   }
 
+  /* ---------- hide edge rails over dark sections ---------- */
+  if ("IntersectionObserver" in window) {
+    var darkEls = document.querySelectorAll(".hero,.juris2,.band-dark,.band-primary");
+    var darkState = new Map();
+    var railIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { darkState.set(e.target, e.isIntersecting); });
+      var anyDark = false;
+      darkState.forEach(function (v) { if (v) anyDark = true; });
+      document.body.classList.toggle("rails-hidden", anyDark);
+    }, { threshold: 0 });
+    darkEls.forEach(function (el) { railIO.observe(el); });
+  }
+
+  /* ---------- testimonial cycle cards: vertical autoscroll + roving dark highlight ---------- */
+  (function () {
+    var cards = Array.prototype.slice.call(document.querySelectorAll(".pcard--cycle"));
+    if (!cards.length) return;
+
+    var states = cards.map(function (card) {
+      var track = card.querySelector(".pcycle-track");
+      var slides = Array.prototype.slice.call(track.children);
+      if (slides.length > 1) track.appendChild(slides[0].cloneNode(true)); // clone first → seamless wrap
+      return { card: card, track: track, count: slides.length, idx: 0 };
+    });
+
+    function slideH(st) { return st.track.children[0].getBoundingClientRect().height; }
+
+    function advance(st) {
+      if (st.count < 2) return;
+      st.idx++;
+      st.track.style.transition = "transform 1.1s cubic-bezier(.22,1,.36,1)";
+      st.track.style.transform = "translateY(" + (-st.idx * slideH(st)) + "px)";
+      if (st.idx === st.count) {
+        var onEnd = function () {
+          st.track.removeEventListener("transitionend", onEnd);
+          st.track.style.transition = "none";
+          st.idx = 0;
+          st.track.style.transform = "translateY(0px)";
+          void st.track.offsetHeight;          // force reflow
+          st.track.style.transition = "";
+        };
+        st.track.addEventListener("transitionend", onEnd);
+      }
+    }
+
+    // initial highlight (the card flagged data-cycle-start="0")
+    cards.forEach(function (c) { c.classList.toggle("is-dark", c.getAttribute("data-cycle-start") === "0"); });
+
+    if (reduce) return; // respect reduced-motion: static, no autoscroll
+
+    var running = false, timer = null, whichCard = 0, dark = 0;
+    function tick() {
+      // alternate: scroll left, scroll right, scroll left, ...
+      advance(states[whichCard]);
+      dark = (dark + 1) % 3;
+      cards.forEach(function (c, i) { c.classList.toggle("is-dark", dark === i); });
+      whichCard = 1 - whichCard; // toggle between 0 and 1
+    }
+    function start() { if (running) return; running = true; timer = setInterval(tick, 5500); }
+    function stop() { running = false; clearInterval(timer); }
+    function stop() { running = false; clearInterval(timer); }
+
+    if ("IntersectionObserver" in window) {
+      var sec = document.getElementById("proof");
+      new IntersectionObserver(function (es) {
+        es[0].isIntersecting ? start() : stop();
+      }, { threshold: 0.1 }).observe(sec);
+    } else { start(); }
+
+    window.addEventListener("resize", function () {
+      states.forEach(function (st) {
+        st.track.style.transition = "none";
+        st.track.style.transform = "translateY(" + (-st.idx * slideH(st)) + "px)";
+        void st.track.offsetHeight;
+        st.track.style.transition = "";
+      });
+    }, { passive: true });
+  })();
+
+
   /* ---------- count-up for trustbar ---------- */
   function countUp(el) {
     var raw = el.textContent.trim();
