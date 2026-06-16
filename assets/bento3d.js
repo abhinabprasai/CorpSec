@@ -329,9 +329,14 @@ function boot() {
   });
   if (!instances.length) return;
 
-  // only animate while a card-bearing section (risk or proof) is on screen
+  // only animate while a card-bearing section (risk / proof / pricing / platform) is on screen
   let visible = true;
-  const watched = [document.getElementById("risk"), document.getElementById("proof")].filter(Boolean);
+  const watched = [
+    document.getElementById("risk"),
+    document.getElementById("proof"),
+    document.getElementById("pricing"),
+    document.getElementById("platform"),
+  ].filter(Boolean);
   if (watched.length && "IntersectionObserver" in window) {
     const vis = new Map();
     const secIO = new IntersectionObserver(function (es) {

@@ -60,11 +60,28 @@
   <div class="container">
     <div class="hero-center" data-par="0.5">
       <span class="eyebrow">Global incorporation</span>
-      <h1 class="display">Your company,<br />anywhere it matters.</h1>
+      <h1 class="display">Your company <span class="grad-shine">Incorporated</span><br />where it matters.</h1>
       <p class="lede">Incorporation, registered address, accounting — across 79 jurisdictions. You tell us where. We handle the rest.</p>
-      <div class="hero-cta center-cta">
-        <a href="#jurisdictions" class="btn btn-primary btn-lg laser">Find my jurisdiction</a>
-        <a href="#recommender" class="btn btn-ghost btn-lg laser">See how it works →</a>
+      <div class="hero-gab">
+        <form class="gab-bar" id="gabBar" autocomplete="off">
+          <span class="gab-avatar" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l1.6 4.3L18 9.4l-4.4 1.6L12 15.5l-1.6-4.5L6 9.4l4.4-1.6L12 3.5Z"/><path d="M18.5 14.5l.7 1.9 1.9.7-1.9.7-.7 1.9-.7-1.9-1.9-.7 1.9-.7.7-1.9Z"/></svg>
+          </span>
+          <input class="gab-input" id="gabInput" type="text" aria-label="Ask Gabriella where to incorporate" placeholder="Ask Gabriella where to incorporate…" />
+          <button class="btn btn-primary gab-send" type="submit">
+            <span>Ask Gabriella</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+        </form>
+        <div class="gab-chips" id="gabChips">
+          <button class="gab-chip" type="button">SaaS founder raising in the US</button>
+          <button class="gab-chip" type="button">Lowest-tax holding company</button>
+          <button class="gab-chip" type="button">Fastest route to a bank account</button>
+        </div>
+        <div class="hero-sublinks">
+          <span class="gab-meta"><i class="gab-dot" aria-hidden="true"></i> Gabriella · AI incorporation advisor</span>
+          <a href="#jurisdictions" class="hero-textlink">or browse 79 jurisdictions →</a>
+        </div>
       </div>
     </div>
     <div class="hero-scrollcue" aria-hidden="true"><span></span>Scroll to explore live markets</div>
@@ -571,46 +588,30 @@
   </div>
 </section>
 
-<section class="section dashboard" id="platform">
+<section class="section platform" id="platform" data-scroll-section>
   <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow">One dashboard</span>
-      <h2>Watch a company come to life.</h2>
-      <p class="sub">Every CorpSec customer gets the same dashboard. Status, renewals, filings, documents — surfaced quietly, never demanding.</p>
-    </div>
-    <div class="dash-mock reveal">
-      <aside class="dash-side">
-        <div class="dash-brand">Corp<span>/</span>Sec</div>
-        <a class="dash-nav active">Dashboard</a>
-        <a class="dash-nav">Documents</a>
-        <a class="dash-nav">Filings</a>
-        <a class="dash-nav">Team</a>
-        <a class="dash-nav">Billing</a>
-        <div class="dash-entity">
-          <small>Switch entity</small>
-          <div class="ent active">Vaultly Pte. Ltd. <span>SG</span></div>
-          <div class="ent">Vaultly Ltd. <span>UK</span></div>
-        </div>
-      </aside>
-      <div class="dash-main">
-        <div class="dash-head">
-          <div>
-            <h4>Vaultly Pte. Ltd.</h4>
-            <span class="dash-sub">Singapore · UEN 202612345A</span>
-          </div>
-          <span class="status-pill">Active ✓</span>
-        </div>
-        <div class="dash-timeline">
-          <div class="tl done"><span class="tl-dot"></span>Incorporation complete<small>14 Mar 2026</small></div>
-          <div class="tl done"><span class="tl-dot"></span>Registered address active<small>14 Mar 2026</small></div>
-          <div class="tl due"><span class="tl-dot"></span>Annual return due<small>Dec 2026</small></div>
-          <div class="tl done"><span class="tl-dot"></span>Bookkeeping up to date<small>Q1 reconciled</small></div>
-        </div>
-        <div class="dash-callout" data-lg data-lg-blur="0.5px">
+    <div class="platform-head">
+      <div class="platform-head__lead reveal">
+        <span class="eyebrow">A real customer's stack</span>
+        <h2>Watch a company come to life.</h2>
+        <p class="sub">Every CorpSec customer gets the same dashboard. Status, renewals, filings, documents — surfaced quietly, never demanding.</p>
+      </div>
+      <div class="platform-head__note reveal">
+        <div class="platform-note" data-lg data-lg-blur="0.5px">
+          <canvas class="platform-note__gfx" data-gfx="proofgeo" aria-hidden="true"></canvas>
           <b>Two entities? Twenty? One dashboard.</b>
-          <span>~40% of CorpSec customers run 2–5 entities across countries. One view. One account manager. One invoice.</span>
+          <span>About 40% of CorpSec customers run 2–5 entities across countries. The back office consolidates filings, renewals and bookkeeping into one view — one named account manager, one invoice.</span>
         </div>
       </div>
+    </div>
+
+    <div class="platform-switch reveal">
+      <span class="platform-switch__label">See it for</span>
+      <div class="platform-pills" id="platformPills" role="tablist" aria-label="Choose a jurisdiction"></div>
+    </div>
+
+    <div class="platform-board reveal" id="platformBoard" aria-live="polite">
+      <!-- rendered by dashboard.js -->
     </div>
   </div>
 </section>
@@ -684,6 +685,8 @@
 <script src="assets/globe.js"></script>
 <script src="assets/jurisdictions.js"></script>
 <script src="assets/app.js"></script>
+<script src="assets/dashboard.js"></script>
+<script src="assets/gabriella.js"></script>
 <script src="assets/liquidglass.js"></script>
 <script src="assets/particles.js"></script>
 <script type="module" src="assets/bento3d.js"></script>
