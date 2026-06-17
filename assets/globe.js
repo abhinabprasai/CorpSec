@@ -35,7 +35,9 @@
   if (fallback) fallback.style.display = "none";
 
   var ctx = canvas.getContext("2d");
-  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var PERF = window.__PERF || {};
+  var LOW = !!PERF.low;
+  var dpr = PERF.dpr || Math.min(window.devicePixelRatio || 1, 2);
   var W = 1, H = 1, DEG = Math.PI / 180;
 
   var projection = d3.geoOrthographic().clipAngle(90).precision(0.5);
@@ -104,7 +106,7 @@
     return false;
   }
   function buildDots(features) {
-    var step = 1.5;
+    var step = LOW ? 2.4 : 1.5;          // ~2.6× fewer dots on low-spec
     features.forEach(function (f) {
       var b = d3.geoBounds(f);
       for (var lng = b[0][0]; lng <= b[1][0]; lng += step)
@@ -198,19 +200,23 @@
           r += dragEnergy * litT * 0.6;
         }
         // cursor proximity: every visible dot reacts to the live pointer position,
-        // rising/glowing away from the cursor in proportion to closeness
-        var cdx = sx - cursorX, cdy = sy - cursorY, cdist = Math.sqrt(cdx * cdx + cdy * cdy);
-        var cradius = 130;
-        if (cdist < cradius) {
-          var ck = (1 - cdist / cradius);
-          ck = ck * ck;
-          var cl = cdist || 1;
-          sx += (cdx / cl) * 10 * ck; sy += (cdy / cl) * 10 * ck;
-          r += 2.2 * ck; a = Math.min(1, a + 0.6 * ck);
-          glow = Math.max(glow, ck);
+        // rising/glowing away from the cursor in proportion to closeness.
+        // Skip the per-dot sqrt entirely when no pointer is present (touch devices).
+        if (cursorX > -9000) {
+          var cdx = sx - cursorX, cdy = sy - cursorY, cdist = Math.sqrt(cdx * cdx + cdy * cdy);
+          var cradius = 130;
+          if (cdist < cradius) {
+            var ck = (1 - cdist / cradius);
+            ck = ck * ck;
+            var cl = cdist || 1;
+            sx += (cdx / cl) * 10 * ck; sy += (cdy / cl) * 10 * ck;
+            r += 2.2 * ck; a = Math.min(1, a + 0.6 * ck);
+            glow = Math.max(glow, ck);
+          }
         }
         ctx.globalAlpha = a; ctx.fillStyle = litT > 0.62 ? pal.dotLit : pal.dotDim;
-        if (glow > 0.15) { ctx.shadowColor = "rgba(140,190,255," + Math.min(1, glow).toFixed(2) + ")"; ctx.shadowBlur = 10 * glow; }
+        // per-dot shadowBlur is the single most expensive 2D op — skip it on low-spec
+        if (!LOW && glow > 0.15) { ctx.shadowColor = "rgba(140,190,255," + Math.min(1, glow).toFixed(2) + ")"; ctx.shadowBlur = 10 * glow; }
         else { ctx.shadowBlur = 0; }
         ctx.beginPath(); ctx.arc(sx, sy, r, 0, 2 * Math.PI); ctx.fill();
       }
@@ -325,7 +331,7 @@
   window.addEventListener("pointerup", function (e) { dragging = false; try { canvas.releasePointerCapture(e.pointerId); } catch (err) {} });
   window.addEventListener("pointercancel", function () { dragging = false; });
   window.addEventListener("pointerleave", function () { cursorX = -9999; cursorY = -9999; }, { passive: true });
-  window.addEventListener("resize", resize, { passive: true });
+  var _rt; window.addEventListener("resize", function () { clearTimeout(_rt); _rt = setTimeout(resize, 150); }, { passive: true });
 
   function now() { return window.performance ? performance.now() : Date.now(); }
 
@@ -366,8 +372,18 @@
     }
     render(); placeMarkers();
   }
-  if ("IntersectionObserver" in window) new IntersectionObserver(function (es) { visible = es[0].isIntersecting && !document.hidden; }, { threshold: 0 }).observe(document.body);
-  document.addEventListener("visibilitychange", function () { visible = !document.hidden; });
+  // pause the globe loop when its visible zone (hero + jurisdictions) is scrolled
+  // past — the fixed layer fades out there anyway, so we stop doing any work.
+  var zone = {};
+  function recomputeVisible() { visible = (zone.hero || zone.jurisdictions) && !document.hidden; }
+  if ("IntersectionObserver" in window) {
+    var zio = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { zone[e.target.id] = e.isIntersecting; });
+      recomputeVisible();
+    }, { threshold: 0 });
+    [document.getElementById("hero"), document.getElementById("jurisdictions")].forEach(function (el) { if (el) zio.observe(el); });
+  } else { zone.hero = true; visible = true; }
+  document.addEventListener("visibilitychange", recomputeVisible);
 
   resize();
   fetch("assets/ne_110m_land.json").then(function (r) { if (!r.ok) throw 0; return r.json(); })

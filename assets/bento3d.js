@@ -12,8 +12,10 @@
    show their CSS background + DOM overlays. ES module. */
 import * as THREE from "./three.module.min.js";
 
-const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion:reduce)").matches;
-const DPR = Math.min(window.devicePixelRatio || 1, 2);
+const PERF = window.__PERF || {};
+const reduce = PERF.reduce != null ? PERF.reduce : (window.matchMedia && window.matchMedia("(prefers-reduced-motion:reduce)").matches);
+const DPR = PERF.dpr || Math.min(window.devicePixelRatio || 1, 2);
+const DENS = PERF.density || 1;          // point-cloud multiplier (low-spec → 0.45)
 
 /* brand palette (matches CSS --brand / --brand-300 / --cyan / --brand-700) */
 const COL = {
@@ -116,7 +118,7 @@ function buildGlobe() {
   const R = 1.0;
 
   // dotted sphere
-  const N = 2200;
+  const N = Math.round(2200 * DENS);
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.BufferAttribute(spherePoints(N, R), 3));
   g.setAttribute("color", new THREE.BufferAttribute(colorAttr(N, function (i, n) {
@@ -130,7 +132,7 @@ function buildGlobe() {
 
   // money-movement arcs (great-circle bulges) + traveling dots
   const arcCurves = [];
-  const ARCS = 7;
+  const ARCS = DENS < 0.6 ? 4 : 7;
   const arcGroup = new THREE.Group();
   for (let i = 0; i < ARCS; i++) {
     const a = randSurf(R), b = randSurf(R);
@@ -190,7 +192,7 @@ function randSurf(r) {
 /* ---------------- BURST scene ---------------- */
 function buildBurst() {
   const group = new THREE.Group();
-  const N = 2000;
+  const N = Math.round(2000 * DENS);
   const pos = new Float32Array(N * 3);
   for (let i = 0; i < N; i++) {
     // hollow-ish cloud: bias toward a ring/shell so the centre stays open
@@ -234,7 +236,7 @@ function buildProofGeo() {
   const R = 1.18;
 
   // soft points sampled on the icosahedron's subdivided vertices
-  const ico = new THREE.IcosahedronGeometry(R, 3);
+  const ico = new THREE.IcosahedronGeometry(R, DENS < 0.6 ? 2 : 3);
   const N = ico.attributes.position.count;
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.BufferAttribute(ico.attributes.position.array.slice(), 3));
@@ -277,7 +279,8 @@ function makeInstance(canvas, builder) {
   try {
     renderer = new THREE.WebGLRenderer({
       canvas: canvas, alpha: true, antialias: false, premultipliedAlpha: true,
-      preserveDrawingBuffer: true, powerPreference: "high-performance", failIfMajorPerformanceCaveat: false,
+      preserveDrawingBuffer: !PERF.low,   // capable devices retain (screenshot hook); low-power skips
+      powerPreference: PERF.low ? "low-power" : "high-performance", failIfMajorPerformanceCaveat: false,
     });
   } catch (e) { return null; }
   renderer.setPixelRatio(DPR);
@@ -321,10 +324,13 @@ function boot() {
     { sel: 'canvas[data-gfx="proofgeo"]', build: buildProofGeo },
   ];
   const instances = [];
+  const maxGfx = PERF.maxGfx || 5;        // cap concurrent WebGL contexts on low-spec
+  let made = 0;
   specs.forEach(function (s) {
     document.querySelectorAll(s.sel).forEach(function (cv) {
+      if (made >= maxGfx) return;         // fail-soft: CSS background still shows
       const inst = makeInstance(cv, s.build);
-      if (inst) instances.push(inst);
+      if (inst) { instances.push(inst); made++; }
     });
   });
   if (!instances.length) return;
@@ -356,12 +362,13 @@ function boot() {
   }
   function loop() {
     if (!running) return;
-    requestAnimationFrame(loop);
     const now = performance.now() / 1000;
     let dt = now - last; last = now;
     if (dt > 0.05) dt = 0.05;
+    // reduced motion: paint one settled frame, then stop the loop entirely
+    if (reduce) { if (visible) renderAll(now, 0); running = false; return; }
+    requestAnimationFrame(loop);
     if (!visible) return;
-    if (reduce) dt = 0;
     renderAll(now, dt);
   }
   // capture/debug hook: headless screenshot tooling can stall on a live WebGL

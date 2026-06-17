@@ -1,6 +1,9 @@
 (function () {
   "use strict";
-  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+  var PERF = window.__PERF || {};
+  var reduce = PERF.reduce != null ? PERF.reduce : (window.matchMedia && window.matchMedia("(prefers-reduced-motion:reduce)").matches);
+  var COARSE = !!PERF.coarse;        // touch — no cursor glow/tilt to gain
+  var LOW = !!PERF.low;
 
   /* ---------- theme switch (dark / light, blue-tinted) ---------- */
   var root = document.documentElement;
@@ -136,7 +139,6 @@
       whichCard = 1 - whichCard; // toggle between 0 and 1
     }
     function start() { if (running) return; running = true; timer = setInterval(tick, 5500); }
-    function stop() { running = false; clearInterval(timer); }
     function stop() { running = false; clearInterval(timer); }
 
     if ("IntersectionObserver" in window) {
@@ -343,36 +345,51 @@
   function clearGlow(el) {
     el.style.setProperty("--mx", "-999px"); el.style.setProperty("--my", "-999px");
   }
-  document.addEventListener("pointermove", function (e) {
-    var el = e.target.closest ? e.target.closest(GLOW_SEL) : null;
-    if (glowEl && glowEl !== el) { clearGlow(glowEl); glowEl = null; }
-    if (!el) {
+  // coalesce to one read+write per frame; getBoundingClientRect + closest on every
+  // raw pointer event is layout thrash. Touch devices skip this entirely.
+  if (!COARSE) {
+    var pmEvt = null, pmQueued = false;
+    var applyGlow = function () {
+      pmQueued = false;
+      var e = pmEvt; if (!e) return;
+      var el = e.target && e.target.closest ? e.target.closest(GLOW_SEL) : null;
+      if (glowEl && glowEl !== el) { clearGlow(glowEl); glowEl = null; }
+      if (!el) {
+        if (tiltEl) { tiltEl.style.setProperty("--tiltX", "0deg"); tiltEl.style.setProperty("--tiltY", "0deg"); tiltEl = null; }
+        return;
+      }
+      glowEl = el;
+      var r = el.getBoundingClientRect();
+      el.style.setProperty("--mx", (e.clientX - r.left).toFixed(0) + "px");
+      el.style.setProperty("--my", (e.clientY - r.top).toFixed(0) + "px");
+      if (!reduce) {
+        if (tiltEl && tiltEl !== el) { tiltEl.style.setProperty("--tiltX", "0deg"); tiltEl.style.setProperty("--tiltY", "0deg"); }
+        tiltEl = el;
+        var px = (e.clientX - r.left) / r.width - 0.5;   // -0.5..0.5
+        var py = (e.clientY - r.top) / r.height - 0.5;
+        el.style.setProperty("--tiltX", (px * 2.4).toFixed(2) + "deg");
+        el.style.setProperty("--tiltY", (py * -2.4).toFixed(2) + "deg");
+      }
+    };
+    document.addEventListener("pointermove", function (e) {
+      pmEvt = e;
+      if (pmQueued) return;
+      pmQueued = true;
+      requestAnimationFrame(applyGlow);
+    }, { passive: true });
+    document.addEventListener("pointerleave", function () {
       if (tiltEl) { tiltEl.style.setProperty("--tiltX", "0deg"); tiltEl.style.setProperty("--tiltY", "0deg"); tiltEl = null; }
-      return;
-    }
-    glowEl = el;
-    var r = el.getBoundingClientRect();
-    el.style.setProperty("--mx", (e.clientX - r.left).toFixed(0) + "px");
-    el.style.setProperty("--my", (e.clientY - r.top).toFixed(0) + "px");
-
-    // super-subtle tilt toward the cursor (tiny rotation, no perspective drama)
-    if (!reduce) {
-      if (tiltEl && tiltEl !== el) { tiltEl.style.setProperty("--tiltX", "0deg"); tiltEl.style.setProperty("--tiltY", "0deg"); }
-      tiltEl = el;
-      var px = (e.clientX - r.left) / r.width - 0.5;   // -0.5..0.5
-      var py = (e.clientY - r.top) / r.height - 0.5;
-      el.style.setProperty("--tiltX", (px * 2.4).toFixed(2) + "deg");
-      el.style.setProperty("--tiltY", (py * -2.4).toFixed(2) + "deg");
-    }
-  }, { passive: true });
-  document.addEventListener("pointerleave", function () {
-    if (tiltEl) { tiltEl.style.setProperty("--tiltX", "0deg"); tiltEl.style.setProperty("--tiltY", "0deg"); tiltEl = null; }
-    if (glowEl) { clearGlow(glowEl); glowEl = null; }
-  });
+      if (glowEl) { clearGlow(glowEl); glowEl = null; }
+    });
+  }
 
   /* ---------- bento cards: tilt + grow + mouse-tracking border glow ---------- */
-  document.querySelectorAll(".bento-card").forEach(function (card) {
-    card.addEventListener("pointermove", function (e) {
+  /* touch devices get no tilt benefit but pay getBoundingClientRect per move → skip */
+  if (!COARSE) document.querySelectorAll(".bento-card").forEach(function (card) {
+    var cEvt = null, cQueued = false;
+    var applyCard = function () {
+      cQueued = false;
+      var e = cEvt; if (!e) return;
       var r = card.getBoundingClientRect();
       var mx = e.clientX - r.left, my = e.clientY - r.top;
       card.style.setProperty("--card-mouse-x", mx.toFixed(1) + "px");
@@ -385,6 +402,9 @@
       card.style.setProperty("--card-shift-y", (py * 10).toFixed(2) + "px");
       card.style.setProperty("--card-grow-x", Math.abs(px * 8).toFixed(2));
       card.style.setProperty("--card-grow-y", Math.abs(py * 8).toFixed(2));
+    };
+    card.addEventListener("pointermove", function (e) {
+      cEvt = e; if (cQueued) return; cQueued = true; requestAnimationFrame(applyCard);
     }, { passive: true });
     card.addEventListener("pointerleave", function () {
       card.style.setProperty("--card-rot-x", "0deg");
@@ -440,6 +460,7 @@
   function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
   function scene() {
     requestAnimationFrame(scene);
+    if (document.hidden) return;
     var vh = window.innerHeight;
     var heroH = heroEl ? heroEl.offsetHeight : vh;
     var y = window.scrollY || window.pageYOffset || 0;
@@ -449,8 +470,8 @@
     if (!reduce) { cmX += (mX - cmX) * 0.06; cmY += (mY - cmY) * 0.06; }
     if (window.Globe) window.Globe.setParallax(cmX, cmY);
 
-    // site-wide subtle cursor parallax for cards/panels
-    if (!reduce) {
+    // site-wide subtle cursor parallax for cards/panels (no cursor on touch)
+    if (!reduce && !COARSE) {
       document.documentElement.style.setProperty("--parX", (cmX * 4).toFixed(2) + "px");
       document.documentElement.style.setProperty("--parY", (cmY * 4).toFixed(2) + "px");
     }

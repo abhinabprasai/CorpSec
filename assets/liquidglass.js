@@ -100,7 +100,8 @@
     el.classList.add("lg-on");
     build(entry);
     if (window.ResizeObserver) {
-      var ro = new ResizeObserver(function () { build(entry); });
+      var rot; // debounce: the SDF rebuild does a per-pixel loop + PNG encode
+      var ro = new ResizeObserver(function () { clearTimeout(rot); rot = setTimeout(function () { build(entry); }, 150); });
       ro.observe(el);
     }
     return entry;
@@ -113,6 +114,10 @@
       try { return CSS.supports("backdrop-filter", "url(#x)") || CSS.supports("-webkit-backdrop-filter", "url(#x)"); }
       catch (e) { return false; }
     })();
+    // low-spec: skip SVG refraction entirely (per-pixel SDF + PNG encode + an
+    // feDisplacementMap inside backdrop-filter is one of the costliest composites).
+    // The plain .lg CSS fallback still gives blur + tint + highlights.
+    if (window.__PERF && window.__PERF.low) supported = false;
     document.body.appendChild(host);
     if (!supported) return;
     document.querySelectorAll("[data-lg]").forEach(register);

@@ -16,7 +16,9 @@
   document.body.appendChild(canvas);
   var ctx = canvas.getContext("2d");
 
-  var W = 1, H = 1, dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+  var PERF = window.__PERF || {};
+  var LOW = !!PERF.low;
+  var W = 1, H = 1, dpr = PERF.dpr || Math.min(window.devicePixelRatio || 1, 1.75);
   var docH = 1;
 
   /* ---- dark-section ranges (page-Y px) for the dissolve tint ---- */
@@ -67,15 +69,17 @@
   /* ---- sandpaper grain field: dense, static positions, fine specks ---- */
   var grains = [];
   function spawnAll() {
-    var density = 1 / 56; // specks per px^2 of viewport
-    var n = Math.min(11000, Math.round(W * H * density));
+    var density = LOW ? 1 / 110 : 1 / 56; // specks per px^2 of viewport
+    var n = Math.min(LOW ? 3500 : 9000, Math.round(W * H * density));
     grains = [];
     for (var i = 0; i < n; i++) {
+      var py = Math.random() * docH;
       grains.push({
         x: Math.random() * W,
-        py: Math.random() * docH,
+        py: py,
         r: Math.random() < 0.6 ? 1 : (Math.random() < 0.85 ? 1.5 : 2),
         base: 0.7 + Math.random() * 0.5, // per-speck brightness variance
+        dk: darkness(py), tr: transitionMix(py), // precomputed tint (depends only on py)
         ox: 0, oy: 0, vx: 0, vy: 0 // smoke-drift offset + inertia
       });
     }
@@ -89,10 +93,15 @@
   var t = 0;
   function frame() {
     requestAnimationFrame(frame);
+    if (document.hidden) return;               // never paint while the tab is backgrounded
     t += 1;
     var scrollY = window.scrollY || window.pageYOffset || 0;
     mx += (tmx - mx) * 0.27; my += (tmy - my) * 0.27;
     ctx.clearRect(0, 0, W, H);
+
+    // hoist the globe disk lookup ONCE per frame (was a call + alloc per grain)
+    var disk = (window.Globe && window.Globe.getDisk) ? window.Globe.getDisk() : null;
+    var hasDisk = disk && disk.r > 0;
 
     for (var i = 0; i < grains.length; i++) {
       var g = grains[i];
@@ -118,16 +127,12 @@
       if (ssy < -4 || ssy > H + 4) continue;
 
       // hide specks that fall behind the globe sphere
-      if (window.Globe) {
-        var disk = window.Globe.getDisk();
-        if (disk.r > 0) {
-          var gdx = sx - disk.cx, gdy = ssy - disk.cy;
-          if (gdx * gdx + gdy * gdy < disk.r * disk.r) continue;
-        }
+      if (hasDisk) {
+        var gdx = sx - disk.cx, gdy = ssy - disk.cy;
+        if (gdx * gdx + gdy * gdy < disk.r * disk.r) continue;
       }
 
-      var dk = darkness(g.py);
-      var tr = transitionMix(g.py);
+      var dk = g.dk, tr = g.tr;             // precomputed at spawn (per-py constants)
 
       // cursor disturbance: nearby specks get slightly brighter/larger, no glow
       var dx = sx - mx, dy = ssy - my, dist = Math.sqrt(dx * dx + dy * dy);
@@ -148,7 +153,7 @@
   }
 
   measure();
-  window.addEventListener("resize", measure, { passive: true });
+  var _mt; window.addEventListener("resize", function () { clearTimeout(_mt); _mt = setTimeout(measure, 150); }, { passive: true });
   // re-measure after layout settles (fonts/images can shift section heights)
   setTimeout(measure, 400); setTimeout(measure, 1500);
   // re-measure dark ranges when the theme toggles

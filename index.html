@@ -6,7 +6,9 @@
 <title>CorpSec — Your company, anywhere it matters</title>
 <meta name="description" content="Incorporation, registered address, accounting — across 79 jurisdictions. You tell us where. We handle the rest." />
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+<link rel="stylesheet" href="assets/vendor/locomotive-scroll.css" />
 <link rel="stylesheet" href="assets/styles.css" />
+<script src="assets/perf.js"></script>
 </head>
 <body>
 
@@ -26,8 +28,8 @@
         <svg class="ti-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
       </button>
       <span class="locale" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18"/></svg> EN</span>
-      <a href="#" class="btn btn-ghost btn-sm">Dashboard</a>
-      <a href="#recommender" class="btn btn-primary btn-sm">Start my company</a>
+      <a href="#" class="btn btn-ghost btn-sm">Log in</a>
+      <a href="#recommender" class="btn btn-primary btn-sm" data-cta="incorp">Start my company</a>
     </div>
     <button class="nav-burger" id="burger" aria-label="Open menu" aria-expanded="false">
       <span></span><span></span><span></span>
@@ -38,7 +40,7 @@
     <a href="#backoffice">Services</a>
     <a href="#pricing">Pricing</a>
     <a href="#jurisdictions">Coverage</a>
-    <a href="#recommender" class="btn btn-primary">Start my company</a>
+    <a href="#recommender" class="btn btn-primary" data-cta="incorp">Start my company</a>
   </div>
 </header>
 
@@ -121,6 +123,18 @@
   </div>
 </section>
 
+<!-- ===== STATS BAND ===== -->
+<section class="statband">
+  <div class="container">
+    <div class="stat-grid reveal">
+      <div class="stat-item"><b>79</b><span>jurisdictions live</span></div>
+      <div class="stat-item"><b>500+</b><span>companies incorporated</span></div>
+      <div class="stat-item"><b>48h</b><span>average to formed</span></div>
+      <div class="stat-item"><b>4.9★</b><span>from 1,500+ founders</span></div>
+    </div>
+  </div>
+</section>
+
 <!-- ===== FEAR ===== -->
 <section class="section fear" id="risk">
   <div class="container">
@@ -128,7 +142,7 @@
       <span class="eyebrow">The risk</span>
       <h2 class="bento-headline"><span class="lead">Pick the wrong jurisdiction once.</span> <span class="rest">Then spend years — and well into six figures — paying tax authorities, banks, lawyers, and investors to undo a single line on a certificate of incorporation.</span></h2>
       <p class="sub">We recommend the right fit across 79 jurisdictions, not the one that pays us most.</p>
-      <a href="#recommender" class="btn btn-primary">Find the right one, free</a>
+      <a href="#recommender" class="btn btn-primary" data-cta="gabriella">Find my jurisdiction — free</a>
     </div>
     <div class="bento reveal">
       <div class="bento-grid">
@@ -272,7 +286,7 @@
       <div class="chips">
         <span class="chip">✓ Free</span><span class="chip">✓ No login</span><span class="chip">✓ No sales call</span>
       </div>
-      <a href="#recommender" class="btn btn-white">Take the 2-minute assessment</a>
+      <a href="#recommender" class="btn btn-white" data-cta="gabriella">Find my jurisdiction</a>
     </div>
     <div class="reveal">
       <div class="steps">
@@ -295,7 +309,7 @@
         </div>
         <div class="reco-foot">
           <span class="reco-also">Also considered: Estonia · UK · Delaware</span>
-          <a href="#" class="btn btn-primary btn-sm">Start →</a>
+          <a href="#" class="btn btn-primary btn-sm" data-cta="incorp" data-jur="Singapore">Start →</a>
         </div>
       </div>
     </div>
@@ -350,7 +364,40 @@
   </div>
 </section>
 
-<!-- ===== DASHBOARD PREVIEW (dark mock on light) ===== -->
+<!-- ===== HOW IT WORKS ===== -->
+<section class="section howworks" id="how">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">How it works</span>
+      <h2>Three steps from idea to incorporated.</h2>
+      <p class="sub">No lawyers to chase, no jurisdiction guesswork, no paperwork you have to read twice.</p>
+    </div>
+    <div class="hw-grid reveal">
+      <article class="hw-card">
+        <span class="hw-num">01</span>
+        <div class="hw-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/><path d="M11 8v6M8 11h6"/></svg></div>
+        <h3>Get matched</h3>
+        <p>Answer eight questions. Gabriella ranks 79 jurisdictions against your tax, banking and investor needs — free, no login.</p>
+        <button class="hw-link" type="button" data-cta="gabriella">Run the recommender →</button>
+      </article>
+      <article class="hw-card">
+        <span class="hw-num">02</span>
+        <div class="hw-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16v13H4z"/><path d="M9 7V4h6v3"/><path d="m8.5 13 2.2 2.2L16 10.4"/></svg></div>
+        <h3>Incorporate remotely</h3>
+        <p>We file with the registry, appoint your registered agent and hand you signed documents — banking introductions included. 48h average.</p>
+        <button class="hw-link" type="button" data-cta="incorp">Start incorporation →</button>
+      </article>
+      <article class="hw-card">
+        <span class="hw-num">03</span>
+        <div class="hw-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9"/><path d="M3 4v4h4"/><path d="M12 8v4l3 2"/></svg></div>
+        <h3>Run it on autopilot</h3>
+        <p>Every renewal, filing and bookkeeping deadline handled by licensed local partners, surfaced in one dashboard — one invoice.</p>
+        <a class="hw-link" href="#platform">See the dashboard →</a>
+      </article>
+    </div>
+  </div>
+</section>
+
 <!-- ===== SOCIAL PROOF ===== -->
 <section class="section social" id="proof">
   <div class="container">
@@ -493,7 +540,7 @@
             <span class="price-tag">Free</span>
             <h3 class="price-card__name">Explore</h3>
             <p class="price-card__desc">For founders comparing jurisdictions before they commit to an entity.</p>
-            <a href="#recommender" class="btn btn-dark price-card__cta">Try the recommender</a>
+            <a href="#recommender" class="btn btn-dark price-card__cta" data-cta="gabriella">Try the recommender</a>
           </div>
           <div class="price-card__divider" aria-hidden="true"></div>
           <div class="price-card__col price-card__col--meta">
@@ -523,7 +570,7 @@
               <span class="price-tag price-tag--accent">Custom pricing</span>
               <h3 class="price-card__name">Scale</h3>
               <p class="price-card__desc">For companies running a portfolio of entities across multiple jurisdictions.</p>
-              <a href="#" class="btn btn-dark price-card__cta">Contact sales</a>
+              <a href="#" class="btn btn-dark price-card__cta" data-cta="contact" data-source="pricing_scale">Talk to sales</a>
             </div>
             <div class="price-globe">
               <canvas class="price-globe__gfx" data-gfx="globe" aria-hidden="true"></canvas>
@@ -559,7 +606,7 @@
             <span class="price-tag">From &pound;120/month</span>
             <h3 class="price-card__name">Launch</h3>
             <p class="price-card__desc">For founders incorporating their first entity and getting banked fast.</p>
-            <a href="#recommender" class="btn btn-primary price-card__cta">Start incorporation</a>
+            <a href="#recommender" class="btn btn-primary price-card__cta" data-cta="incorp">Start incorporation</a>
           </div>
           <div class="price-card__divider" aria-hidden="true"></div>
           <div class="price-card__col price-card__col--meta">
@@ -588,7 +635,47 @@
   </div>
 </section>
 
-<section class="section platform" id="platform" data-scroll-section>
+<!-- ===== FAQ ===== -->
+<section class="section band-tint faq" id="faq">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">FAQ</span>
+      <h2>Questions founders ask before they incorporate.</h2>
+    </div>
+    <div class="faq-list reveal">
+      <details class="faq-item">
+        <summary>Where should I actually incorporate?<span class="faq-chev" aria-hidden="true"></span></summary>
+        <div class="faq-a"><p>That's exactly what Gabriella answers. The recommender ranks 79 jurisdictions against your tax exposure, banking options and investor expectations — free, in two minutes.</p></div>
+      </details>
+      <details class="faq-item">
+        <summary>Do I have to live in the country I incorporate in?<span class="faq-chev" aria-hidden="true"></span></summary>
+        <div class="faq-a"><p>Almost never. Most of our jurisdictions allow 100% remote, non-resident setup. Where local substance or a resident director is required, we provide it.</p></div>
+      </details>
+      <details class="faq-item">
+        <summary>Can you actually get me a bank account?<span class="faq-chev" aria-hidden="true"></span></summary>
+        <div class="faq-a"><p>We make introductions to Mercury, Wise, Revolut and local partners, matched to a jurisdiction they'll onboard. Your country of incorporation — not where you live — decides who'll bank you.</p></div>
+      </details>
+      <details class="faq-item">
+        <summary>What does it really cost — all in?<span class="faq-chev" aria-hidden="true"></span></summary>
+        <div class="faq-a"><p>You see government fees, our fee and recurring annual costs itemised before you commit. No generic tiers, no surprise renewals.</p></div>
+      </details>
+      <details class="faq-item">
+        <summary>Can I move my company later if I get it wrong?<span class="faq-chev" aria-hidden="true"></span></summary>
+        <div class="faq-a"><p>Yes, but re-domiciliation is a five-figure cross-border project. The recommender exists so you don't have to.</p></div>
+      </details>
+      <details class="faq-item">
+        <summary>Who actually does the work?<span class="faq-chev" aria-hidden="true"></span></summary>
+        <div class="faq-a"><p>Licensed corporate service providers and regulated professionals in each jurisdiction, all with professional indemnity. CorpSec coordinates and gives you one dashboard.</p></div>
+      </details>
+    </div>
+    <div class="faq-foot reveal">
+      <span>Still weighing your options?</span>
+      <button class="btn btn-primary" type="button" data-cta="gabriella">Ask Gabriella — free</button>
+    </div>
+  </div>
+</section>
+
+<section class="section platform" id="platform">
   <div class="container">
     <div class="platform-head">
       <div class="platform-head__lead reveal">
@@ -654,8 +741,8 @@
     <h2 class="on-dark">Start where it actually matters.</h2>
     <p class="sub on-dark-sub">Formation, address, accounting — in 48h on average. Not sure where to begin? Two minutes. No login.</p>
     <div class="hero-cta center-cta">
-      <a href="#recommender" class="btn btn-white btn-lg">Find my jurisdiction</a>
-      <a href="#" class="btn btn-ghost-light btn-lg">Talk to a specialist</a>
+      <a href="#recommender" class="btn btn-white btn-lg" data-cta="gabriella">Find my jurisdiction</a>
+      <a href="#" class="btn btn-ghost-light btn-lg" data-cta="contact" data-source="final_cta">Talk to sales</a>
     </div>
     <p class="cta-trust">79 jurisdictions · 19 services · 500+ founders incorporated</p>
   </div>
@@ -665,19 +752,99 @@
 
 <!-- ===== FOOTER ===== -->
 <footer class="footer">
-  <div class="container footer-grid">
-    <div class="footer-brand">
+  <!-- top: brand + newsletter -->
+  <div class="container foot-top">
+    <div class="foot-brand">
       <a class="wordmark on-dark" href="#top">Corp<span>/</span>Sec</a>
       <p>Your company, anywhere it matters.</p>
+      <span class="foot-brand__trust">500+ companies incorporated across 79 jurisdictions.</span>
     </div>
-    <div><h4>Decide</h4><a href="#recommender">Gabriella</a><a href="#jurisdictions">All jurisdictions</a><a href="#jurisdictions">Compare</a><a href="#pricing">Pricing</a></div>
-    <div><h4>Operate</h4><a href="#backoffice">All services</a><a href="#backoffice">Company formation</a><a href="#backoffice">Registered address</a><a href="#backoffice">Accounting & tax</a></div>
-    <div><h4>Legal & contact</h4><a href="#">Terms</a><a href="#">Privacy</a><a href="#">Legal notice</a><a href="#">hello@corpsec.io</a></div>
+    <div class="foot-sub">
+      <h4>Cross-border briefing</h4>
+      <p>Jurisdiction changes, tax-treaty updates and filing deadlines — once a month, no noise.</p>
+      <form class="foot-sub-bar" id="footSub" autocomplete="off">
+        <input type="email" id="footSubInput" placeholder="you@company.com" aria-label="Email address" />
+        <button class="btn btn-primary btn-sm" type="submit">Subscribe</button>
+      </form>
+      <span class="foot-sub__note" id="footSubNote">No spam. Unsubscribe anytime.</span>
+    </div>
   </div>
-  <div class="container footer-bottom">
-    <span>© 2026 CorpSec — Your company, anywhere it matters</span>
-    <span class="locale">EN · USD</span>
-    <svg class="footer-mark" viewBox="0 0 43 43" fill="none" aria-hidden="true"><path fill="#533afd" fill-rule="evenodd" d="m0 43 43-9.119V0L0 9.226V43Z" clip-rule="evenodd"/></svg>
+
+  <!-- columns -->
+  <div class="container foot-cols">
+    <div class="foot-col">
+      <h4>Product</h4>
+      <a href="#recommender" data-cta="gabriella">Gabriella advisor</a>
+      <a href="#jurisdictions">All 79 jurisdictions</a>
+      <a href="#backoffice">Company formation</a>
+      <a href="#backoffice">Registered address</a>
+      <a href="#backoffice">Accounting &amp; tax</a>
+      <a href="#platform">The dashboard</a>
+      <a href="#pricing">Pricing</a>
+    </div>
+    <div class="foot-col">
+      <h4>Solutions</h4>
+      <a href="#recommender" data-cta="gabriella">SaaS &amp; startups</a>
+      <a href="#recommender" data-cta="gabriella">Holding companies</a>
+      <a href="#recommender" data-cta="gabriella">E-commerce sellers</a>
+      <a href="#recommender" data-cta="gabriella">Crypto &amp; Web3</a>
+      <a href="#recommender" data-cta="gabriella">Solo founders</a>
+      <a href="#recommender" data-cta="gabriella">Fund &amp; SPV structures</a>
+    </div>
+    <div class="foot-col">
+      <h4>Resources</h4>
+      <a href="#jurisdictions">Jurisdiction guides</a>
+      <a href="#pricing">Cost calculator</a>
+      <a href="#faq">Compliance calendar</a>
+      <a href="#proof">Customer stories</a>
+      <a href="#faq">Help center</a>
+      <a href="#how">How it works</a>
+    </div>
+    <div class="foot-col">
+      <h4>Company</h4>
+      <a href="#">About CorpSec</a>
+      <a href="#how">How it works</a>
+      <a href="#backoffice">Our local partners</a>
+      <a href="#">Careers</a>
+      <a href="#" data-cta="contact" data-source="footer">Partner with us</a>
+      <a href="#" data-cta="contact" data-source="footer">Talk to sales</a>
+    </div>
+    <div class="foot-col">
+      <h4>Legal</h4>
+      <a href="#">Terms of service</a>
+      <a href="#">Privacy policy</a>
+      <a href="#">Cookie policy</a>
+      <a href="#">Legal &amp; regulatory notice</a>
+      <a href="#">Trust &amp; security</a>
+      <a href="mailto:hello@corpsec.io">hello@corpsec.io</a>
+    </div>
+  </div>
+
+  <!-- trust / compliance strip -->
+  <div class="container foot-trust">
+    <div class="foot-badges">
+      <span class="foot-badge">256-bit encryption</span>
+      <span class="foot-badge">Encrypted document vault</span>
+      <span class="foot-badge">GDPR-aligned</span>
+      <span class="foot-badge">Licensed CSP network</span>
+      <span class="foot-badge">Professional indemnity insured</span>
+    </div>
+    <p class="foot-disclaimer">CorpSec is a coordination platform. Incorporation, registered-agent and accounting services are delivered by licensed corporate service providers and regulated professionals in each jurisdiction (powered by Koulier, Bookiper and 30+ partners). CorpSec does not provide legal or tax advice.</p>
+  </div>
+
+  <!-- legal bar -->
+  <div class="container foot-bar">
+    <span class="foot-copy">© 2026 CorpSec — Your company, anywhere it matters.</span>
+    <div class="foot-locale">
+      <span class="foot-pill"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18"/></svg> English</span>
+      <span class="foot-pill">USD $</span>
+    </div>
+    <div class="foot-social">
+      <a href="#" aria-label="CorpSec on LinkedIn"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM10 9h3.8v1.7h.05c.53-.95 1.83-1.95 3.77-1.95 4.03 0 4.78 2.5 4.78 5.75V21h-4v-5.1c0-1.22-.02-2.8-1.95-2.8s-2.25 1.32-2.25 2.7V21h-4z"/></svg></a>
+      <a href="#" aria-label="CorpSec on X"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+      <a href="#" aria-label="CorpSec on GitHub"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49v-1.7c-2.78.62-3.37-1.37-3.37-1.37-.46-1.18-1.11-1.5-1.11-1.5-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.9 1.57 2.34 1.12 2.91.85.09-.66.35-1.12.63-1.37-2.22-.26-4.55-1.13-4.55-5.04 0-1.11.39-2.02 1.03-2.73-.1-.26-.45-1.3.1-2.7 0 0 .84-.27 2.75 1.04A9.4 9.4 0 0 1 12 6.85c.85 0 1.71.12 2.51.34 1.91-1.31 2.75-1.04 2.75-1.04.55 1.4.2 2.44.1 2.7.64.71 1.03 1.62 1.03 2.73 0 3.92-2.34 4.78-4.57 5.03.36.32.68.94.68 1.9v2.82c0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2z"/></svg></a>
+      <svg class="footer-mark" viewBox="0 0 43 43" fill="none" aria-hidden="true"><path fill="#533afd" fill-rule="evenodd" d="m0 43 43-9.119V0L0 9.226V43Z" clip-rule="evenodd"/></svg>
+    </div>
   </div>
 </footer>
 
@@ -687,8 +854,10 @@
 <script src="assets/app.js"></script>
 <script src="assets/dashboard.js"></script>
 <script src="assets/gabriella.js"></script>
+<script src="assets/forms.js"></script>
 <script src="assets/liquidglass.js"></script>
 <script src="assets/particles.js"></script>
 <script type="module" src="assets/bento3d.js"></script>
+<script type="module" src="assets/locomotive-init.js"></script>
 </body>
 </html>
