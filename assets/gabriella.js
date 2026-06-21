@@ -21,9 +21,9 @@
     root.className = "csm";
     root.hidden = true;
     root.innerHTML =
-      '<div class="csm__scrim" data-csm-close></div>' +
-      '<div class="csm__panel" role="dialog" aria-modal="true" tabindex="-1">' +
-        '<button class="csm__close" type="button" data-csm-close aria-label="Close">' +
+      '<div class="csm__scrim" data-csm-close data-slot="dialog-overlay"></div>' +
+      '<div class="csm__panel" role="dialog" aria-modal="true" tabindex="-1" data-slot="dialog-content">' +
+        '<button class="csm__close" type="button" data-csm-close aria-label="Close" data-slot="dialog-close">' +
           '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>' +
         '</button>' +
         '<div class="csm__content"></div>' +

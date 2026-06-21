@@ -118,8 +118,17 @@
   /* ---------------- render ---------------- */
   var diskCx = -9999, diskCy = -9999, diskR = 0;
   function render() {
+    var mono = stage.dataset.mono === "1";
     var light = document.documentElement.dataset.theme === "light";
-    var pal = light ? {
+    var pal = mono ? {
+      atmo: ["rgba(160,170,185,0)", "rgba(155,168,185,0.06)", "rgba(160,170,185,0)"],
+      ocean: ["#f2f4f7", "#e8ecf1", "#dce1e8"],
+      rimGlow: "rgba(170,180,200,0.18)", rimShadow: "rgba(160,175,195,0.28)", rimBlur: 10,
+      rim: ["rgba(155,168,188,0)", "rgba(165,178,200,0.28)", "rgba(208,218,230,0.65)", "rgba(165,178,200,0.28)", "rgba(155,168,188,0)"],
+      rimShadow2: "rgba(175,190,210,0.45)",
+      graticule: "rgba(140,155,175,0.08)", land: "rgba(125,140,160,0.14)",
+      dotLit: "#8fa0b5", dotDim: "#bac8d4"
+    } : light ? {
       atmo: ["rgba(70,110,230,0)", "rgba(80,130,235,0.14)", "rgba(74,120,225,0)"],
       ocean: ["#dde9fb", "#bdd2f6", "#9cb8ee"],
       rimGlow: "rgba(70,120,230,0.4)", rimShadow: "rgba(70,120,230,0.7)", rimBlur: 28,

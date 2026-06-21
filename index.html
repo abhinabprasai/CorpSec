@@ -17,30 +17,30 @@
   <div class="nav-inner">
     <a class="wordmark" href="#top" aria-label="CorpSec home">Corp<span>/</span>Sec</a>
     <nav class="nav-links" aria-label="Primary">
-      <a href="#jurisdictions">Jurisdictions</a>
-      <a href="#backoffice">Services</a>
+      <a href="jurisdictions.html">Jurisdictions</a>
+      <a href="jurisdictions.html#services">Services</a>
       <a href="#pricing">Pricing</a>
-      <a href="#jurisdictions">Coverage</a>
+      <a href="#how">How it works</a>
     </nav>
     <div class="nav-actions">
-      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle light/dark theme">
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle light/dark theme" data-slot="button" data-variant="ghost" data-size="icon">
         <svg class="ti-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
         <svg class="ti-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
       </button>
       <span class="locale" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18"/></svg> EN</span>
-      <a href="#" class="btn btn-ghost btn-sm">Log in</a>
-      <a href="#recommender" class="btn btn-primary btn-sm" data-cta="incorp">Start my company</a>
+      <a href="#" class="btn btn-ghost btn-sm" data-slot="button" data-variant="outline" data-size="sm">Log in</a>
+      <a href="#recommender" class="btn btn-primary btn-sm" data-slot="button" data-variant="default" data-size="sm" data-cta="incorp">Start my company</a>
     </div>
-    <button class="nav-burger" id="burger" aria-label="Open menu" aria-expanded="false">
+    <button class="nav-burger" id="burger" aria-label="Open menu" aria-expanded="false" data-slot="button" data-variant="ghost" data-size="icon">
       <span></span><span></span><span></span>
     </button>
   </div>
   <div class="nav-drawer" id="drawer">
-    <a href="#jurisdictions">Jurisdictions</a>
-    <a href="#backoffice">Services</a>
+    <a href="jurisdictions.html">Jurisdictions</a>
+    <a href="jurisdictions.html#services">Services</a>
     <a href="#pricing">Pricing</a>
-    <a href="#jurisdictions">Coverage</a>
-    <a href="#recommender" class="btn btn-primary" data-cta="incorp">Start my company</a>
+    <a href="#how">How it works</a>
+    <a href="#recommender" class="btn btn-primary" data-slot="button" data-variant="default" data-cta="incorp">Start my company</a>
   </div>
 </header>
 
@@ -69,8 +69,8 @@
           <span class="gab-avatar" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l1.6 4.3L18 9.4l-4.4 1.6L12 15.5l-1.6-4.5L6 9.4l4.4-1.6L12 3.5Z"/><path d="M18.5 14.5l.7 1.9 1.9.7-1.9.7-.7 1.9-.7-1.9-1.9-.7 1.9-.7.7-1.9Z"/></svg>
           </span>
-          <input class="gab-input" id="gabInput" type="text" aria-label="Ask Gabriella where to incorporate" placeholder="Ask Gabriella where to incorporate…" />
-          <button class="btn btn-primary gab-send" type="submit">
+          <input class="gab-input" id="gabInput" type="text" aria-label="Ask Gabriella where to incorporate" placeholder="Ask Gabriella where to incorporate…" data-slot="input" />
+          <button class="btn btn-primary gab-send" type="submit" data-slot="button" data-variant="default">
             <span>Ask Gabriella</span>
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </button>
@@ -324,13 +324,13 @@
       <h2>We run the back office. In any country.</h2>
       <p class="sub">Every filing, every renewal, every compliance deadline — handled by licensed local partners, surfaced through one dashboard.</p>
     </div>
-    <div class="tabs reveal" id="boTabs">
-      <button class="tab active" data-tab="form">Form <small>· Stand it up</small></button>
-      <button class="tab" data-tab="operate">Operate <small>· Stay in good standing</small></button>
-      <button class="tab" data-tab="run">Run <small>· Run the finances</small></button>
+    <div class="tabs reveal" id="boTabs" data-slot="tabs-list" role="tablist">
+      <button class="tab active" data-tab="form" data-slot="tabs-trigger" role="tab" data-state="active">Form <small>· Stand it up</small></button>
+      <button class="tab" data-tab="operate" data-slot="tabs-trigger" role="tab" data-state="inactive">Operate <small>· Stay in good standing</small></button>
+      <button class="tab" data-tab="run" data-slot="tabs-trigger" role="tab" data-state="inactive">Run <small>· Run the finances</small></button>
     </div>
     <div class="tab-panels reveal">
-      <div class="tab-panel active" data-panel="form">
+      <div class="tab-panel active" data-panel="form" data-slot="tabs-content" role="tabpanel" data-state="active">
         <div class="panel-copy">
           <h3>The legal entity, fully formed.</h3>
           <ul class="ticks">
@@ -340,7 +340,7 @@
         </div>
         <div class="panel-mock"><div class="mini-ui mini-form"></div></div>
       </div>
-      <div class="tab-panel" data-panel="operate">
+      <div class="tab-panel" data-panel="operate" data-slot="tabs-content" role="tabpanel" data-state="inactive">
         <div class="panel-copy">
           <h3>Good standing, kept.</h3>
           <ul class="ticks">
@@ -350,7 +350,7 @@
         </div>
         <div class="panel-mock"><div class="mini-ui mini-operate"></div></div>
       </div>
-      <div class="tab-panel" data-panel="run">
+      <div class="tab-panel" data-panel="run" data-slot="tabs-content" role="tabpanel" data-state="inactive">
         <div class="panel-copy">
           <h3>The financial machinery your investors will check.</h3>
           <ul class="ticks">
@@ -373,26 +373,26 @@
       <p class="sub">No lawyers to chase, no jurisdiction guesswork, no paperwork you have to read twice.</p>
     </div>
     <div class="hw-grid reveal">
-      <article class="hw-card">
+      <article class="hw-card" data-slot="card">
         <span class="hw-num">01</span>
         <div class="hw-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/><path d="M11 8v6M8 11h6"/></svg></div>
         <h3>Get matched</h3>
         <p>Answer eight questions. Gabriella ranks 79 jurisdictions against your tax, banking and investor needs — free, no login.</p>
-        <button class="hw-link" type="button" data-cta="gabriella">Run the recommender →</button>
+        <button class="hw-link" type="button" data-slot="button" data-variant="link" data-cta="gabriella">Run the recommender →</button>
       </article>
-      <article class="hw-card">
+      <article class="hw-card" data-slot="card">
         <span class="hw-num">02</span>
         <div class="hw-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16v13H4z"/><path d="M9 7V4h6v3"/><path d="m8.5 13 2.2 2.2L16 10.4"/></svg></div>
         <h3>Incorporate remotely</h3>
         <p>We file with the registry, appoint your registered agent and hand you signed documents — banking introductions included. 48h average.</p>
-        <button class="hw-link" type="button" data-cta="incorp">Start incorporation →</button>
+        <button class="hw-link" type="button" data-slot="button" data-variant="link" data-cta="incorp">Start incorporation →</button>
       </article>
-      <article class="hw-card">
+      <article class="hw-card" data-slot="card">
         <span class="hw-num">03</span>
         <div class="hw-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9"/><path d="M3 4v4h4"/><path d="M12 8v4l3 2"/></svg></div>
         <h3>Run it on autopilot</h3>
         <p>Every renewal, filing and bookkeeping deadline handled by licensed local partners, surfaced in one dashboard — one invoice.</p>
-        <a class="hw-link" href="#platform">See the dashboard →</a>
+        <a class="hw-link" href="#platform" data-slot="button" data-variant="link">See the dashboard →</a>
       </article>
     </div>
   </div>
@@ -410,7 +410,7 @@
     <div class="proof-bento reveal">
 
       <!-- LEFT — tall feature card with minimal geometry graphic -->
-      <article class="bento-card pcard pcard--feature">
+      <article class="bento-card pcard pcard--feature" data-slot="card">
         <div class="bento-card__border"></div>
         <div class="bento-card__border-glow"></div>
         <canvas class="pcard-gfx" data-gfx="proofgeo" aria-hidden="true"></canvas>
@@ -434,7 +434,7 @@
       </article>
 
       <!-- TOP RIGHT — wide card spanning two columns -->
-      <article class="bento-card pcard pcard--wide">
+      <article class="bento-card pcard pcard--wide" data-slot="card">
         <div class="bento-card__border"></div>
         <div class="bento-card__border-glow"></div>
         <div class="bento-card__inner pcard__inner">
@@ -457,7 +457,7 @@
       </article>
 
       <!-- BOTTOM MIDDLE — autoscrolling cycle card -->
-      <article class="bento-card pcard pcard--cycle" data-cycle data-cycle-start="0">
+      <article class="bento-card pcard pcard--cycle" data-cycle data-cycle-start="0" data-slot="card">
         <div class="bento-card__border"></div>
         <div class="bento-card__border-glow"></div>
         <div class="pcycle-viewport">
@@ -482,7 +482,7 @@
       </article>
 
       <!-- BOTTOM RIGHT — autoscrolling cycle card -->
-      <article class="bento-card pcard pcard--cycle" data-cycle data-cycle-start="1">
+      <article class="bento-card pcard pcard--cycle" data-cycle data-cycle-start="1" data-slot="card">
         <div class="bento-card__border"></div>
         <div class="bento-card__border-glow"></div>
         <div class="pcycle-viewport">
@@ -516,7 +516,7 @@
         <b>4.9</b>
         <small>Based on 1.5k reviews</small>
       </div>
-      <a href="#" class="btn btn-ghost proof-foot__btn">View all reviews <span aria-hidden="true">↗</span></a>
+      <a href="#" class="btn btn-ghost proof-foot__btn" data-slot="button" data-variant="outline">View all reviews <span aria-hidden="true">↗</span></a>
     </div>
   </div>
 </section>
@@ -532,15 +532,15 @@
     <div class="pricing-grid reveal">
 
       <!-- FREE -->
-      <article class="bento-card price-card price-card--free">
+      <article class="bento-card price-card price-card--free" data-slot="card">
         <div class="bento-card__border"></div>
         <div class="bento-card__border-glow"></div>
         <div class="bento-card__inner price-card__inner">
           <div class="price-card__col price-card__col--main">
-            <span class="price-tag">Free</span>
+            <span class="price-tag" data-slot="badge" data-variant="outline">Free</span>
             <h3 class="price-card__name">Explore</h3>
             <p class="price-card__desc">For founders comparing jurisdictions before they commit to an entity.</p>
-            <a href="#recommender" class="btn btn-dark price-card__cta" data-cta="gabriella">Try the recommender</a>
+            <a href="#recommender" class="btn btn-dark price-card__cta" data-slot="button" data-variant="secondary" data-cta="gabriella">Try the recommender</a>
           </div>
           <div class="price-card__divider" aria-hidden="true"></div>
           <div class="price-card__col price-card__col--meta">
@@ -561,16 +561,16 @@
       </article>
 
       <!-- ENTERPRISE -->
-      <article class="bento-card price-card price-card--enterprise">
+      <article class="bento-card price-card price-card--enterprise" data-slot="card">
         <div class="bento-card__border"></div>
         <div class="bento-card__border-glow"></div>
         <div class="bento-card__inner price-card__inner price-card__inner--enterprise">
           <div class="price-card__top">
             <div class="price-card__col price-card__col--main">
-              <span class="price-tag price-tag--accent">Custom pricing</span>
+              <span class="price-tag price-tag--accent" data-slot="badge" data-variant="secondary">Custom pricing</span>
               <h3 class="price-card__name">Scale</h3>
               <p class="price-card__desc">For companies running a portfolio of entities across multiple jurisdictions.</p>
-              <a href="#" class="btn btn-dark price-card__cta" data-cta="contact" data-source="pricing_scale">Talk to sales</a>
+              <a href="#" class="btn btn-dark price-card__cta" data-slot="button" data-variant="secondary" data-cta="contact" data-source="pricing_scale">Talk to sales</a>
             </div>
             <div class="price-globe">
               <canvas class="price-globe__gfx" data-gfx="globe" aria-hidden="true"></canvas>
@@ -598,15 +598,16 @@
       </article>
 
       <!-- STARTER -->
-      <article class="bento-card price-card price-card--starter">
+      <article class="bento-card price-card price-card--starter" data-slot="card">
         <div class="bento-card__border"></div>
         <div class="bento-card__border-glow"></div>
         <div class="bento-card__inner price-card__inner">
           <div class="price-card__col price-card__col--main">
-            <span class="price-tag">From &pound;120/month</span>
+            <span class="price-badge" data-slot="badge" data-variant="default">Most popular</span>
+            <span class="price-tag" data-slot="badge" data-variant="outline">From &pound;120/month</span>
             <h3 class="price-card__name">Launch</h3>
             <p class="price-card__desc">For founders incorporating their first entity and getting banked fast.</p>
-            <a href="#recommender" class="btn btn-primary price-card__cta" data-cta="incorp">Start incorporation</a>
+            <a href="#recommender" class="btn btn-primary price-card__cta" data-slot="button" data-variant="default" data-cta="incorp">Start incorporation</a>
           </div>
           <div class="price-card__divider" aria-hidden="true"></div>
           <div class="price-card__col price-card__col--meta">
@@ -630,7 +631,7 @@
     </div>
 
     <div class="pricing-foot reveal">
-      <a href="#" class="btn btn-ghost pricing-foot__btn">Compare all features <span aria-hidden="true">↗</span></a>
+      <a href="#" class="btn btn-ghost pricing-foot__btn" data-slot="button" data-variant="outline">Compare all features <span aria-hidden="true">↗</span></a>
     </div>
   </div>
 </section>
@@ -642,35 +643,35 @@
       <span class="eyebrow">FAQ</span>
       <h2>Questions founders ask before they incorporate.</h2>
     </div>
-    <div class="faq-list reveal">
-      <details class="faq-item">
-        <summary>Where should I actually incorporate?<span class="faq-chev" aria-hidden="true"></span></summary>
-        <div class="faq-a"><p>That's exactly what Gabriella answers. The recommender ranks 79 jurisdictions against your tax exposure, banking options and investor expectations — free, in two minutes.</p></div>
+    <div class="faq-list reveal" data-slot="accordion" data-orientation="vertical">
+      <details class="faq-item" data-slot="accordion-item">
+        <summary data-slot="accordion-trigger">Where should I actually incorporate?<span class="faq-chev" aria-hidden="true"></span></summary>
+        <div class="faq-a" data-slot="accordion-content" role="region"><p>That's exactly what Gabriella answers. The recommender ranks 79 jurisdictions against your tax exposure, banking options and investor expectations — free, in two minutes.</p></div>
       </details>
-      <details class="faq-item">
-        <summary>Do I have to live in the country I incorporate in?<span class="faq-chev" aria-hidden="true"></span></summary>
-        <div class="faq-a"><p>Almost never. Most of our jurisdictions allow 100% remote, non-resident setup. Where local substance or a resident director is required, we provide it.</p></div>
+      <details class="faq-item" data-slot="accordion-item">
+        <summary data-slot="accordion-trigger">Do I have to live in the country I incorporate in?<span class="faq-chev" aria-hidden="true"></span></summary>
+        <div class="faq-a" data-slot="accordion-content" role="region"><p>Almost never. Most of our jurisdictions allow 100% remote, non-resident setup. Where local substance or a resident director is required, we provide it.</p></div>
       </details>
-      <details class="faq-item">
-        <summary>Can you actually get me a bank account?<span class="faq-chev" aria-hidden="true"></span></summary>
-        <div class="faq-a"><p>We make introductions to Mercury, Wise, Revolut and local partners, matched to a jurisdiction they'll onboard. Your country of incorporation — not where you live — decides who'll bank you.</p></div>
+      <details class="faq-item" data-slot="accordion-item">
+        <summary data-slot="accordion-trigger">Can you actually get me a bank account?<span class="faq-chev" aria-hidden="true"></span></summary>
+        <div class="faq-a" data-slot="accordion-content" role="region"><p>We make introductions to Mercury, Wise, Revolut and local partners, matched to a jurisdiction they'll onboard. Your country of incorporation — not where you live — decides who'll bank you.</p></div>
       </details>
-      <details class="faq-item">
-        <summary>What does it really cost — all in?<span class="faq-chev" aria-hidden="true"></span></summary>
-        <div class="faq-a"><p>You see government fees, our fee and recurring annual costs itemised before you commit. No generic tiers, no surprise renewals.</p></div>
+      <details class="faq-item" data-slot="accordion-item">
+        <summary data-slot="accordion-trigger">What does it really cost — all in?<span class="faq-chev" aria-hidden="true"></span></summary>
+        <div class="faq-a" data-slot="accordion-content" role="region"><p>You see government fees, our fee and recurring annual costs itemised before you commit. No generic tiers, no surprise renewals.</p></div>
       </details>
-      <details class="faq-item">
-        <summary>Can I move my company later if I get it wrong?<span class="faq-chev" aria-hidden="true"></span></summary>
-        <div class="faq-a"><p>Yes, but re-domiciliation is a five-figure cross-border project. The recommender exists so you don't have to.</p></div>
+      <details class="faq-item" data-slot="accordion-item">
+        <summary data-slot="accordion-trigger">Can I move my company later if I get it wrong?<span class="faq-chev" aria-hidden="true"></span></summary>
+        <div class="faq-a" data-slot="accordion-content" role="region"><p>Yes, but re-domiciliation is a five-figure cross-border project. The recommender exists so you don't have to.</p></div>
       </details>
-      <details class="faq-item">
-        <summary>Who actually does the work?<span class="faq-chev" aria-hidden="true"></span></summary>
-        <div class="faq-a"><p>Licensed corporate service providers and regulated professionals in each jurisdiction, all with professional indemnity. CorpSec coordinates and gives you one dashboard.</p></div>
+      <details class="faq-item" data-slot="accordion-item">
+        <summary data-slot="accordion-trigger">Who actually does the work?<span class="faq-chev" aria-hidden="true"></span></summary>
+        <div class="faq-a" data-slot="accordion-content" role="region"><p>Licensed corporate service providers and regulated professionals in each jurisdiction, all with professional indemnity. CorpSec coordinates and gives you one dashboard.</p></div>
       </details>
     </div>
     <div class="faq-foot reveal">
       <span>Still weighing your options?</span>
-      <button class="btn btn-primary" type="button" data-cta="gabriella">Ask Gabriella — free</button>
+      <button class="btn btn-primary" type="button" data-slot="button" data-variant="default" data-cta="gabriella">Ask Gabriella — free</button>
     </div>
   </div>
 </section>
@@ -694,7 +695,7 @@
 
     <div class="platform-switch reveal">
       <span class="platform-switch__label">See it for</span>
-      <div class="platform-pills" id="platformPills" role="tablist" aria-label="Choose a jurisdiction"></div>
+      <div class="platform-pills" id="platformPills" role="tablist" aria-label="Choose a jurisdiction" data-slot="tabs-list"></div>
     </div>
 
     <div class="platform-board reveal" id="platformBoard" aria-live="polite">
@@ -741,8 +742,8 @@
     <h2 class="on-dark">Start where it actually matters.</h2>
     <p class="sub on-dark-sub">Formation, address, accounting — in 48h on average. Not sure where to begin? Two minutes. No login.</p>
     <div class="hero-cta center-cta">
-      <a href="#recommender" class="btn btn-white btn-lg" data-cta="gabriella">Find my jurisdiction</a>
-      <a href="#" class="btn btn-ghost-light btn-lg" data-cta="contact" data-source="final_cta">Talk to sales</a>
+      <a href="#recommender" class="btn btn-white btn-lg" data-slot="button" data-variant="secondary" data-size="lg" data-cta="gabriella">Find my jurisdiction</a>
+      <a href="#" class="btn btn-ghost-light btn-lg" data-slot="button" data-variant="outline" data-size="lg" data-cta="contact" data-source="final_cta">Talk to sales</a>
     </div>
     <p class="cta-trust">79 jurisdictions · 19 services · 500+ founders incorporated</p>
   </div>
@@ -763,8 +764,8 @@
       <h4>Cross-border briefing</h4>
       <p>Jurisdiction changes, tax-treaty updates and filing deadlines — once a month, no noise.</p>
       <form class="foot-sub-bar" id="footSub" autocomplete="off">
-        <input type="email" id="footSubInput" placeholder="you@company.com" aria-label="Email address" />
-        <button class="btn btn-primary btn-sm" type="submit">Subscribe</button>
+        <input type="email" id="footSubInput" placeholder="you@company.com" aria-label="Email address" data-slot="input" />
+        <button class="btn btn-primary btn-sm" type="submit" data-slot="button" data-variant="default" data-size="sm">Subscribe</button>
       </form>
       <span class="foot-sub__note" id="footSubNote">No spam. Unsubscribe anytime.</span>
     </div>

@@ -324,10 +324,12 @@
   boTabs.addEventListener("click", function (e) {
     var btn = e.target.closest(".tab"); if (!btn) return;
     var key = btn.dataset.tab;
-    this.querySelectorAll(".tab").forEach(function (t) { t.classList.remove("active"); });
-    btn.classList.add("active");
+    this.querySelectorAll(".tab").forEach(function (t) { t.classList.remove("active"); t.setAttribute("data-state", "inactive"); });
+    btn.classList.add("active"); btn.setAttribute("data-state", "active");
     document.querySelectorAll(".tab-panel").forEach(function (p) {
-      p.classList.toggle("active", p.dataset.panel === key);
+      var on = p.dataset.panel === key;
+      p.classList.toggle("active", on);
+      p.setAttribute("data-state", on ? "active" : "inactive");
     });
   });
 

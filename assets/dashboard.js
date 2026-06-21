@@ -83,11 +83,12 @@
       Array.prototype.forEach.call(pillsEl.children, function (p, k) {
         p.classList.toggle("active", k === i);
         p.setAttribute("aria-selected", k === i ? "true" : "false");
+        p.setAttribute("data-state", k === i ? "active" : "inactive");
       });
     }
 
     pillsEl.innerHTML = DATA.map(function (j, i) {
-      return '<button class="platform-pill" role="tab" type="button" data-i="' + i + '" aria-selected="' + (i === 0 ? "true" : "false") + '">' +
+      return '<button class="platform-pill" role="tab" type="button" data-slot="tabs-trigger" data-i="' + i + '" aria-selected="' + (i === 0 ? "true" : "false") + '" data-state="' + (i === 0 ? "active" : "inactive") + '">' +
         flag(j.iso) + "<span>" + j.name + "</span></button>";
     }).join("");
 
