@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Compare Jurisdictions | CorpSec</title>
+<meta name="description" content="Compare up to 5 incorporation jurisdictions side by side — tax rates, setup costs, residency requirements, banking and more across 79 countries." />
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+<link rel="stylesheet" href="assets/styles.css" />
+<script src="assets/perf.js"></script>
+</head>
+<body class="jx-page compare-page">
+<a class="skip-link" href="#compare">Skip to content</a>
+
+<!-- ===== NAV ===== -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="wordmark" href="index.html" aria-label="CorpSec home">Corp<span>/</span>Sec</a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="jurisdictions.html">Jurisdictions</a>
+      <a href="jurisdictions.html#services">Services</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div class="nav-actions">
+      <a href="jurisdictions.html" class="btn btn-ghost btn-sm" data-slot="button" data-variant="outline" data-size="sm">All jurisdictions</a>
+      <a href="#" class="btn btn-primary btn-sm" data-slot="button" data-variant="default" data-size="sm" data-cta="incorp">Start my company</a>
+    </div>
+    <button class="nav-burger" id="burger" aria-label="Open menu" aria-expanded="false" data-slot="button" data-variant="ghost" data-size="icon">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav-drawer" id="drawer">
+    <a href="jurisdictions.html">Jurisdictions</a>
+    <a href="jurisdictions.html#services">Services</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+    <a href="#" class="btn btn-primary" data-slot="button" data-variant="default" data-cta="incorp">Start my company</a>
+  </div>
+</header>
+
+<main id="compare" class="compare-main" tabindex="-1">
+
+  <!-- ===== HERO ===== -->
+  <section class="page-hero">
+    <div class="page-hero__glow" aria-hidden="true"></div>
+    <div class="container page-hero__inner reveal">
+      <span class="eyebrow">Jurisdiction comparison</span>
+      <h1 class="page-hero__title">Pick the right jurisdiction — not just the most popular one.</h1>
+      <p class="page-hero__sub">Add up to 5 jurisdictions and compare tax rates, setup costs, residency requirements and more, side by side. Showing full data for 6 flagship jurisdictions — or let Gabriella narrow it down for your specific situation.</p>
+      <div class="page-hero__cta">
+        <a class="btn btn-primary btn-lg" href="#" data-slot="button" data-variant="default" data-size="lg" data-cta="gabriella">Ask Gabriella</a>
+        <a class="btn btn-ghost btn-lg" href="jurisdictions.html" data-slot="button" data-variant="outline" data-size="lg">All 79 jurisdictions</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== COMPARE TABLE ===== -->
+  <section class="section cmp-section">
+    <div class="container cmp-container">
+
+      <div class="cmp-header reveal">
+        <div>
+          <h2 class="cmp-header__title">Side-by-side comparison</h2>
+          <p class="cmp-header__sub">Click <strong>Add</strong> to include a jurisdiction · click <strong>×</strong> to remove one · <span class="cmp-badge cmp-badge--ok" style="font-size:11px;padding:1px 7px">Not required</span> and <span class="cmp-badge cmp-badge--warn" style="font-size:11px;padding:1px 7px">Required</span> mark residency requirements</p>
+        </div>
+        <a href="jurisdictions.html" class="btn btn-ghost btn-sm" data-slot="button" data-variant="outline" data-size="sm">Browse directory</a>
+      </div>
+
+      <!-- Table rendered by compare.js -->
+      <div class="cmp-outer" id="cmpOuter" role="region" aria-label="Jurisdiction comparison table" aria-live="polite"></div>
+
+      <p class="cmp-disclaimer">Tax rates from official sources (IRAS, HMRC, MoF, etc.) and PwC Worldwide Tax Summaries. General information only — not legal or tax advice. Verify current figures before making decisions.</p>
+    </div>
+  </section>
+
+  <!-- ===== CTA ===== -->
+  <section class="jx-cta2"><div class="container">
+    <div class="jx-cta2__wrap reveal">
+      <h2 class="jx-cta2__line">Still not sure where to land? <a class="jx-cta2__pill" href="#" data-cta="gabriella">Ask Gabriella <span aria-hidden="true">→</span></a> or talk to a specialist.</h2>
+      <p class="jx-cta2__sub">Eight questions, two minutes — a ranked shortlist for your situation. <a class="jx-cta2__link" href="contact.html">Contact the team →</a></p>
+      <div class="jx-cta2__stats"><div><b>79</b><span>jurisdictions</span></div><div><b>48h</b><span>avg. to formed</span></div><div><b>500+</b><span>companies</span></div></div>
+    </div>
+  </div></section>
+
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container foot-bar" style="border:0">
+    <a class="wordmark on-dark" href="index.html" style="font-size:18px">Corp<span>/</span>Sec</a>
+    <nav class="foot-locale" aria-label="Footer">
+      <a class="foot-pill" href="jurisdictions.html">All jurisdictions</a>
+      <a class="foot-pill" href="compare.html">Compare</a>
+      <a class="foot-pill" href="about.html">About</a>
+      <a class="foot-pill" href="contact.html">Contact</a>
+      <a class="foot-pill" href="index.html#faq">FAQ</a>
+    </nav>
+  </div>
+  <div class="container"><p class="foot-disclaimer" style="margin-top:18px">CorpSec coordinates licensed local corporate-service providers in each jurisdiction. Tax and regulatory figures are general information from official sources and are not legal or tax advice. Banking introductions do not guarantee an account.</p></div>
+</footer>
+
+<script src="assets/nav.js"></script>
+<script src="assets/jurisdictions-data.js"></script>
+<script src="assets/jurisdictions.js"></script>
+<script src="assets/gabriella.js"></script>
+<script src="assets/forms.js"></script>
+<script src="assets/compare.js"></script>
+<script src="assets/interactions.js"></script>
+<script src="assets/particles.js"></script>
+</body>
+</html>

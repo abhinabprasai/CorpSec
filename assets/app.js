@@ -4,25 +4,13 @@
   var reduce = PERF.reduce != null ? PERF.reduce : (window.matchMedia && window.matchMedia("(prefers-reduced-motion:reduce)").matches);
   var COARSE = !!PERF.coarse;        // touch — no cursor glow/tilt to gain
   var LOW = !!PERF.low;
-
-  /* ---------- theme switch (dark / light, blue-tinted) ---------- */
   var root = document.documentElement;
-  var storedTheme = null;
-  try { storedTheme = localStorage.getItem("theme"); } catch (err) {}
-  if (storedTheme === "light" || storedTheme === "dark") root.dataset.theme = storedTheme;
-  var themeToggle = document.getElementById("themeToggle");
-  if (themeToggle) {
-    themeToggle.addEventListener("click", function () {
-      var next = root.dataset.theme === "light" ? "dark" : "light";
-      root.dataset.theme = next;
-      try { localStorage.setItem("theme", next); } catch (err) {}
-    });
-  }
 
   /* ---------- nav: glass on scroll + Dynamic-Island collapse ---------- */
   var nav = document.getElementById("nav");
   var lastY = window.scrollY || 0, ticking = false;
   function onScroll() {
+    if (!nav) return;
     var y = window.scrollY || window.pageYOffset || 0;
     nav.classList.toggle("scrolled", y > 24);
     if (y < 120) {
@@ -39,27 +27,46 @@
   }, { passive: true });
   onScroll();
 
-  /* ---------- mobile drawer ---------- */
+  /* ---------- mobile drawer (accessible disclosure: focus move, trap, ESC) ---------- */
   var burger = document.getElementById("burger");
+  var drawer = document.getElementById("drawer");
   var closeTimer = null;
-  function closeDrawer() {
-    if (!nav.classList.contains("open")) return;
-    nav.classList.remove("open");
-    burger.setAttribute("aria-expanded", "false");
-    if (reduce) return;
-    nav.classList.add("closing");
-    clearTimeout(closeTimer);
-    closeTimer = setTimeout(function () { nav.classList.remove("closing"); }, 340);
+  if (burger && drawer) {
+    burger.setAttribute("aria-controls", "drawer");
+    var drawerFocusables = function () {
+      return Array.prototype.slice.call(drawer.querySelectorAll("a[href],button:not([disabled])"));
+    };
+    var closeDrawer = function (returnFocus) {
+      if (!nav.classList.contains("open")) return;
+      nav.classList.remove("open");
+      burger.setAttribute("aria-expanded", "false");
+      if (returnFocus) burger.focus();
+      if (reduce) return;
+      nav.classList.add("closing");
+      clearTimeout(closeTimer);
+      closeTimer = setTimeout(function () { nav.classList.remove("closing"); }, 340);
+    };
+    var openDrawer = function () {
+      clearTimeout(closeTimer); nav.classList.remove("closing");
+      nav.classList.add("open");
+      burger.setAttribute("aria-expanded", "true");
+      var f = drawerFocusables(); if (f.length) f[0].focus();
+    };
+    burger.addEventListener("click", function () {
+      if (nav.classList.contains("open")) closeDrawer(true); else openDrawer();
+    });
+    drawer.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") { closeDrawer(true); return; }
+      if (e.key !== "Tab") return;
+      var f = drawerFocusables(); if (!f.length) return;
+      var first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    });
+    drawer.querySelectorAll("a").forEach(function (a) {
+      a.addEventListener("click", function () { closeDrawer(false); });
+    });
   }
-  burger.addEventListener("click", function () {
-    if (nav.classList.contains("open")) { closeDrawer(); return; }
-    clearTimeout(closeTimer); nav.classList.remove("closing");
-    nav.classList.add("open");
-    burger.setAttribute("aria-expanded", "true");
-  });
-  document.querySelectorAll(".nav-drawer a").forEach(function (a) {
-    a.addEventListener("click", closeDrawer);
-  });
 
   /* ---------- scroll reveal ---------- */
   var reveals = document.querySelectorAll(".reveal");
@@ -319,19 +326,55 @@
     }
   }
 
-  /* ---------- back office tabs ---------- */
+  /* ---------- back office tabs (WAI-ARIA tabs: roving tabindex + arrows) ---------- */
   var boTabs = document.getElementById("boTabs");
-  boTabs.addEventListener("click", function (e) {
-    var btn = e.target.closest(".tab"); if (!btn) return;
-    var key = btn.dataset.tab;
-    this.querySelectorAll(".tab").forEach(function (t) { t.classList.remove("active"); t.setAttribute("data-state", "inactive"); });
-    btn.classList.add("active"); btn.setAttribute("data-state", "active");
-    document.querySelectorAll(".tab-panel").forEach(function (p) {
-      var on = p.dataset.panel === key;
-      p.classList.toggle("active", on);
-      p.setAttribute("data-state", on ? "active" : "inactive");
+  if (boTabs) {
+    var tabBtns = Array.prototype.slice.call(boTabs.querySelectorAll(".tab"));
+    var tabPanels = Array.prototype.slice.call(document.querySelectorAll(".tab-panel"));
+    var selectTab = function (btn, moveFocus) {
+      var key = btn.dataset.tab;
+      tabBtns.forEach(function (t) {
+        var on = t === btn;
+        t.classList.toggle("active", on);
+        t.setAttribute("data-state", on ? "active" : "inactive");
+        t.setAttribute("aria-selected", on ? "true" : "false");
+        t.tabIndex = on ? 0 : -1;
+      });
+      tabPanels.forEach(function (p) {
+        var on = p.dataset.panel === key;
+        p.classList.toggle("active", on);
+        p.setAttribute("data-state", on ? "active" : "inactive");
+      });
+      if (moveFocus) btn.focus();
+    };
+    // wire ARIA relationships (panels are display:none when inactive → hidden from AT)
+    tabBtns.forEach(function (t) {
+      var key = t.dataset.tab, on = t.classList.contains("active");
+      t.id = t.id || "bo-tab-" + key;
+      var panel = tabPanels.filter(function (p) { return p.dataset.panel === key; })[0];
+      if (panel) {
+        panel.id = panel.id || "bo-panel-" + key;
+        panel.setAttribute("aria-labelledby", t.id);
+        panel.tabIndex = 0;
+        t.setAttribute("aria-controls", panel.id);
+      }
+      t.setAttribute("aria-selected", on ? "true" : "false");
+      t.tabIndex = on ? 0 : -1;
     });
-  });
+    boTabs.addEventListener("click", function (e) {
+      var btn = e.target.closest(".tab"); if (btn) selectTab(btn, false);
+    });
+    boTabs.addEventListener("keydown", function (e) {
+      var i = tabBtns.indexOf(document.activeElement);
+      if (i < 0) return;
+      var n = tabBtns.length, j = -1;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") j = (i + 1) % n;
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") j = (i - 1 + n) % n;
+      else if (e.key === "Home") j = 0;
+      else if (e.key === "End") j = n - 1;
+      if (j >= 0) { e.preventDefault(); selectTab(tabBtns[j], true); }
+    });
+  }
 
   /* ---------- dashboard entity switch ---------- */
   document.querySelectorAll(".dash-entity .ent").forEach(function (ent) {
@@ -385,38 +428,10 @@
     });
   }
 
-  /* ---------- bento cards: tilt + grow + mouse-tracking border glow ---------- */
-  /* touch devices get no tilt benefit but pay getBoundingClientRect per move → skip */
-  if (!COARSE) document.querySelectorAll(".bento-card").forEach(function (card) {
-    var cEvt = null, cQueued = false;
-    var applyCard = function () {
-      cQueued = false;
-      var e = cEvt; if (!e) return;
-      var r = card.getBoundingClientRect();
-      var mx = e.clientX - r.left, my = e.clientY - r.top;
-      card.style.setProperty("--card-mouse-x", mx.toFixed(1) + "px");
-      card.style.setProperty("--card-mouse-y", my.toFixed(1) + "px");
-      if (reduce) return;
-      var px = mx / r.width - 0.5, py = my / r.height - 0.5;   // -0.5..0.5
-      card.style.setProperty("--card-rot-x", (py * -6).toFixed(2) + "deg");
-      card.style.setProperty("--card-rot-y", (px * 6).toFixed(2) + "deg");
-      card.style.setProperty("--card-shift-x", (px * 10).toFixed(2) + "px");
-      card.style.setProperty("--card-shift-y", (py * 10).toFixed(2) + "px");
-      card.style.setProperty("--card-grow-x", Math.abs(px * 8).toFixed(2));
-      card.style.setProperty("--card-grow-y", Math.abs(py * 8).toFixed(2));
-    };
-    card.addEventListener("pointermove", function (e) {
-      cEvt = e; if (cQueued) return; cQueued = true; requestAnimationFrame(applyCard);
-    }, { passive: true });
-    card.addEventListener("pointerleave", function () {
-      card.style.setProperty("--card-rot-x", "0deg");
-      card.style.setProperty("--card-rot-y", "0deg");
-      card.style.setProperty("--card-shift-x", "0px");
-      card.style.setProperty("--card-shift-y", "0px");
-      card.style.setProperty("--card-grow-x", "0");
-      card.style.setProperty("--card-grow-y", "0");
-    });
-  });
+  /* ---------- bento cards: tilt + grow + border glow ----------
+     Handled centrally by interactions.js (initTilt) for ALL pages — it gates on
+     (any-pointer:fine), dedupes via card.__tilt, sets --card-rot/shift/grow/mouse,
+     and re-binds dynamically inserted cards via MutationObserver. No duplicate here. */
 
   /* ---------- bento: scroll-in triggers (chart bars, substance meter) ---------- */
   if ("IntersectionObserver" in window) {

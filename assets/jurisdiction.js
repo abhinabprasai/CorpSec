@@ -13,16 +13,37 @@
   var flag = function (iso) { return "https://flagcdn.com/" + iso + ".svg"; };
 
   if (!d) {
-    mount.innerHTML =
-      '<section class="section jx-empty"><div class="container center">' +
-      '<span class="eyebrow">Jurisdiction</span>' +
-      '<h1 class="display" style="font-size:clamp(28px,5vw,44px)">We’re preparing this one.</h1>' +
-      '<p class="sub" style="max-width:48ch;margin:14px auto 26px">We don’t have a full guide for “' + esc(slug) +
-      '” yet. Browse the jurisdictions we cover in depth, or ask a specialist.</p>' +
-      '<div class="hero-cta center-cta" style="justify-content:center">' +
-      '<a class="btn btn-primary" href="jurisdictions.html" data-slot="button" data-variant="default">Browse jurisdictions</a>' +
-      '<a class="btn btn-ghost" href="#" data-cta="contact" data-source="jx_missing" data-slot="button" data-variant="outline">Ask about it</a>' +
-      '</div></div></section>';
+    var nm = params.get("n") ? decodeURIComponent(params.get("n")) : null;
+    var qIso = (params.get("iso") || "").toLowerCase();
+    var qRegion = params.get("r") ? decodeURIComponent(params.get("r")) : "";
+    if (nm) {
+      // Known jurisdiction from the directory — the in-depth guide isn't written
+      // yet, but render a real, branded landing state (not a generic dead-end).
+      document.title = "Incorporate in " + nm + " — CorpSec";
+      mount.innerHTML =
+        '<section class="section jx-empty"><div class="container center">' +
+        '<a class="jx-back" href="jurisdictions.html" style="justify-content:center;margin-bottom:18px"><span aria-hidden="true">←</span> All jurisdictions</a>' +
+        (qIso ? '<span class="jx-flag-chip jx-flag-chip--xl" style="margin:0 auto 18px;display:inline-flex"><img src="' + flag(qIso) + '" alt="' + esc(nm) + ' flag" width="52" height="39" /></span>' : '') +
+        '<span class="eyebrow">' + esc(qRegion || "Jurisdiction") + '</span>' +
+        '<h1 class="display" style="font-size:clamp(28px,5vw,44px)">Incorporate in ' + esc(nm) + '.</h1>' +
+        '<p class="sub" style="max-width:54ch;margin:14px auto 26px">We coordinate incorporation, registered address and accounting in ' + esc(nm) +
+        ' through a licensed local partner. The full in-depth guide is in progress — a specialist can walk you through tax, banking and timeline today.</p>' +
+        '<div class="hero-cta center-cta" style="justify-content:center">' +
+        '<a class="btn btn-primary" href="#" data-cta="contact" data-source="jx_soon_' + esc(qIso || slug) + '" data-slot="button" data-variant="default">Talk to a ' + esc(nm) + ' specialist</a>' +
+        '<a class="btn btn-ghost" href="jurisdictions.html" data-slot="button" data-variant="outline">Browse all 79</a>' +
+        '</div></div></section>';
+    } else {
+      mount.innerHTML =
+        '<section class="section jx-empty"><div class="container center">' +
+        '<span class="eyebrow">Jurisdiction</span>' +
+        '<h1 class="display" style="font-size:clamp(28px,5vw,44px)">We’re preparing this one.</h1>' +
+        '<p class="sub" style="max-width:48ch;margin:14px auto 26px">Browse the jurisdictions we cover in depth, or ask a specialist.</p>' +
+        '<div class="hero-cta center-cta" style="justify-content:center">' +
+        '<a class="btn btn-primary" href="jurisdictions.html" data-slot="button" data-variant="default">Browse jurisdictions</a>' +
+        '<a class="btn btn-ghost" href="#" data-cta="contact" data-source="jx_missing" data-slot="button" data-variant="outline">Ask about it</a>' +
+        '</div></div></section>';
+    }
+    if (window.Interactions) window.Interactions.refresh(mount);
     return;
   }
 
@@ -54,6 +75,8 @@
     var tax = metric(d, /corp/i);
     var setup = metric(d, /setup|active|timing/i);
     var price = ((d.bundle && d.bundle.priceLabel) || "—").split("(")[0].trim();
+    var taxBul = taxBullets(tax);
+    var taxSub = tax === '—' ? 'Contact a specialist for current rates' : 'Headline rate · re-verify annually';
     var icTax = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>';
     var icClock = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 3.5"/></svg>';
     var icTag = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2H7a1 1 0 0 0-.707.293l-4 4A1 1 0 0 0 2 7v5a1 1 0 0 0 .293.707l9 9a1 1 0 0 0 1.414 0l8-8a1 1 0 0 0 0-1.414l-9-9A1 1 0 0 0 12 2Z"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>';
@@ -73,6 +96,16 @@
       '</div>' +
       '<p class="jx-sub">' + d.hero.sub + '</p>' +
       '<div class="jx-tags jx-bento-main__tags">' + tags + '</div>' +
+      '<div class="jx-bento-main__act">' +
+      '<div class="jx-bento-main__price">' +
+      '<span class="jx-bento-stat__ic jx-bento-main__price-ic">' + icTag + '</span>' +
+      '<div><span class="jx-bento-stat__label">Bundle from</span>' +
+      '<span class="jx-bento-main__prval">' + price + '</span>' +
+      '</div></div>' +
+      '<div class="jx-bento-main__cta">' +
+      '<a class="btn btn-primary" href="#pricing" data-slot="button" data-variant="default">Build your package</a>' +
+      '<a class="btn btn-ghost" href="#" data-cta="contact" data-source="jx_hero_' + esc(d.slug) + '" data-slot="button" data-variant="outline">Talk to a specialist</a>' +
+      '</div></div>' +
       '</div></article>' +
 
       // ── Corp tax stat card (col 3, row 1)
@@ -81,7 +114,8 @@
       '<div class="bento-card__inner">' +
       '<span class="jx-bento-stat__ic">' + icTax + '</span>' +
       '<span class="jx-bento-stat__label">Corporate tax</span>' +
-      '<span class="jx-bento-stat__val">' + tax + '</span>' +
+      (taxBul || '<span class="jx-bento-stat__val">' + tax + '</span>') +
+      '<span class="jx-bento-stat__sub">' + taxSub + '</span>' +
       '</div></article>' +
 
       // ── Setup time stat card (col 3, row 2)
@@ -91,26 +125,8 @@
       '<span class="jx-bento-stat__ic">' + icClock + '</span>' +
       '<span class="jx-bento-stat__label">Setup time</span>' +
       '<span class="jx-bento-stat__val">' + setup + '</span>' +
+      '<span class="jx-bento-stat__sub">Gov. filing via licensed partner</span>' +
       '</div></article>' +
-
-      // ── From price card (col 1, row 3)
-      '<article class="bento-card jx-bento-price reveal" data-slot="card">' +
-      '<div class="bento-card__border"></div><div class="bento-card__border-glow"></div>' +
-      '<div class="bento-card__inner">' +
-      '<span class="jx-bento-stat__ic">' + icTag + '</span>' +
-      '<span class="jx-bento-stat__label">Bundle from</span>' +
-      '<span class="jx-bento-price__val">' + price + '</span>' +
-      '<a class="jx-bento-price__link" href="#pricing">Build package <span aria-hidden="true">↓</span></a>' +
-      '</div></article>' +
-
-      // ── CTA card (col 2-3, row 3)
-      '<article class="bento-card jx-bento-cta reveal" data-slot="card">' +
-      '<div class="bento-card__border"></div><div class="bento-card__border-glow"></div>' +
-      '<div class="bento-card__inner">' +
-      '<div class="jx-bento-cta__inner">' +
-      '<a class="btn btn-primary btn-lg" href="#pricing" data-slot="button" data-variant="default" data-size="lg">Build your package</a>' +
-      '<a class="btn btn-ghost btn-lg" href="#" data-cta="contact" data-source="jx_hero_' + esc(d.slug) + '" data-slot="button" data-variant="outline" data-size="lg">Talk to a specialist</a>' +
-      '</div></div></article>' +
 
       '</div></div></section>';
   }
@@ -136,14 +152,13 @@
       var j = DATA[a.slug];
       return j ? compareCard(j, false, a.reason) : altFallback(a);
     }).join("");
-    var withList = [d.slug].concat((d.alternatives || []).map(function (a) { return a.slug; })).join(",");
     return '' +
       '<section class="section band-tint jx-compare" id="compare"><div class="container">' +
       '<div class="section-head reveal"><span class="eyebrow">Compare</span>' +
       '<h2>How ' + d.name + ' stacks up.</h2>' +
       '<p class="sub">The jurisdictions founders weigh against ' + d.name + ', side by side — tax, speed and all-in cost at a glance.</p></div>' +
       '<div class="jx-cmp__grid">' + anchor + alts + '</div>' +
-      '<div class="jx-cmp__foot reveal"><a class="btn btn-ghost" href="jurisdictions.html#compare?with=' + withList + '" data-slot="button" data-variant="outline">Compare all side by side <span aria-hidden="true">↗</span></a></div>' +
+      '<div class="jx-cmp__foot reveal"><a class="btn btn-ghost" href="jurisdictions.html#popular" data-slot="button" data-variant="outline">Compare all side by side <span aria-hidden="true">↗</span></a></div>' +
       '</div></section>';
   }
 
@@ -157,9 +172,11 @@
       '<div class="jx-cmp__head"><span class="jx-flag-chip jx-flag-chip--sm"><img src="' + flag(j.iso) + '" alt="" width="28" height="21" /></span>' +
       '<div><b>' + j.name + '</b><small>' + (j.region || "") + '</small></div></div>' +
       '<dl class="jx-cmp__metrics">' +
-      '<div><dt>Corporate tax</dt><dd>' + tax + '</dd></div>' +
-      '<div><dt>Setup time</dt><dd>' + setup + '</dd></div>' +
-      '<div><dt>From</dt><dd>' + price + '</dd></div>' +
+      (taxBullets(tax)
+        ? '<div class="jx-cmp__metric--stack"><dt>Corporate tax</dt>' + taxBullets(tax) + '</div>'
+        : '<div><dt>Corporate tax</dt><dd>' + tax + '</dd></div>') +
+      '<div class="jx-cmp__metric--stack"><dt>Setup time</dt><dd>' + setup + '</dd></div>' +
+      '<div class="jx-cmp__metric--stack"><dt>From</dt><dd>' + price + '</dd></div>' +
       '</dl>' +
       (reason ? '<p class="jx-cmp__why">' + reason + '</p>' : '') +
       (isAnchor ? '<span class="jx-cmp__cur">Current jurisdiction</span>'
@@ -257,7 +274,7 @@
       '</div>' +
       '<div class="jx-cart" id="jxCart" hidden>' +
       '<div class="container jx-cart__inner">' +
-      '<div class="jx-cart__info">' +
+      '<div class="jx-cart__info" role="status" aria-live="polite">' +
       '<span class="jx-cart__count" id="jxCartCount">0 services</span>' +
       '<span class="jx-cart__total" id="jxCartTotal"></span>' +
       '</div>' +
@@ -304,18 +321,14 @@
 
   function ctaHTML(d) {
     return '' +
-      '<section class="section jx-final"><div class="container">' +
-      '<div class="jx-final__card reveal" style="--c1:' + c1 + ';--c2:' + c2 + '">' +
-      '<div class="jx-final__glow" aria-hidden="true"></div>' +
-      '<div class="jx-final__body">' +
-      '<span class="jx-flag-chip jx-flag-chip--lg"><img src="' + flag(d.iso) + '" alt="" width="40" height="30" /></span>' +
-      '<h2>Your ' + d.name + ' company, ready to operate.</h2>' +
-      '<p>A licensed local team handles filing, banking introductions and compliance. You stay in control.</p>' +
-      '<div class="hero-cta center-cta jx-final__cta">' +
-      '<a class="btn btn-white btn-lg" href="#pricing" data-slot="button" data-variant="secondary" data-size="lg">Build your package</a>' +
-      '<a class="btn btn-ghost-light btn-lg" href="jurisdictions.html#compare" data-slot="button" data-variant="outline" data-size="lg">Compare jurisdictions</a>' +
-      '</div></div>' +
-      '<div class="jx-final__stats"><div><b>48h</b><span>avg. filing</span></div><div><b>79</b><span>jurisdictions</span></div><div><b>2,400+</b><span>companies</span></div></div>' +
+      '<section class="section jx-cta2"><div class="container">' +
+      '<div class="jx-cta2__wrap reveal">' +
+      '<h2 class="jx-cta2__line">Let’s get your ' + esc(d.name) + ' company ' +
+      '<a class="jx-cta2__pill" href="#pricing" data-cta="incorp">Build your package <span aria-hidden="true">→</span></a> ' +
+      'filed, banked and fully compliant.</h2>' +
+      '<p class="jx-cta2__sub">A licensed local team handles every step. ' +
+      '<a class="jx-cta2__link" href="#" data-cta="contact" data-source="jx_final_' + esc(d.slug) + '">Talk to a specialist →</a></p>' +
+      '<div class="jx-cta2__stats"><div><b>48h</b><span>avg. filing</span></div><div><b>79</b><span>jurisdictions</span></div><div><b>500+</b><span>companies</span></div></div>' +
       '</div></div></section>';
   }
 
@@ -378,6 +391,12 @@
     var f = (j.fiscal || []).filter(function (x) { return re.test(x.label); })[0];
     return f ? f.value : "—";
   }
+  /* long corporate-tax sentences → tidy bullet list (split on ";") */
+  function taxBullets(val) {
+    var parts = String(val).split(/;\s*/).map(function (s) { return s.trim(); }).filter(Boolean);
+    if (parts.length < 2) return null;
+    return '<ul class="jx-taxbul">' + parts.map(function (p) { return '<li>' + p + '</li>'; }).join("") + '</ul>';
+  }
   function firstNum(s) { var m = String(s).replace(/,/g, "").match(/(\d{2,})/); return m ? +m[1] : 0; }
   function check() { return '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.2 2.2L15.8 9.4"/></svg>'; }
   function icDoc() { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V7Z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h4"/></svg>'; }
@@ -392,13 +411,44 @@
   }
 
   function wireTabs() {
-    var tabs = mount.querySelectorAll(".jx-tab");
-    tabs.forEach(function (t) {
-      t.addEventListener("click", function () {
-        var key = t.dataset.tab;
-        tabs.forEach(function (x) { x.classList.toggle("is-on", x === t); x.setAttribute("data-state", x === t ? "active" : "inactive"); });
-        mount.querySelectorAll(".jx-tabpanel").forEach(function (p) { p.classList.toggle("is-on", p.dataset.panel === key); });
+    var tabs = Array.prototype.slice.call(mount.querySelectorAll(".jx-tab"));
+    var panels = Array.prototype.slice.call(mount.querySelectorAll(".jx-tabpanel"));
+    function panelFor(key) { return panels.filter(function (p) { return p.dataset.panel === key; })[0]; }
+    function sel(t, moveFocus) {
+      var key = t.dataset.tab;
+      tabs.forEach(function (x) {
+        var on = x === t;
+        x.classList.toggle("is-on", on);
+        x.setAttribute("data-state", on ? "active" : "inactive");
+        x.setAttribute("aria-selected", on ? "true" : "false");
+        x.tabIndex = on ? 0 : -1;
       });
+      panels.forEach(function (p) { p.classList.toggle("is-on", p.dataset.panel === key); });
+      if (moveFocus) t.focus();
+    }
+    tabs.forEach(function (t) {
+      var key = t.dataset.tab, on = t.classList.contains("is-on");
+      t.id = t.id || "jxtab-" + key;
+      var p = panelFor(key);
+      if (p) {
+        p.id = p.id || "jxpanel-" + key;
+        p.setAttribute("role", "tabpanel");
+        p.setAttribute("aria-labelledby", t.id);
+        p.tabIndex = 0;
+        t.setAttribute("aria-controls", p.id);
+      }
+      t.setAttribute("aria-selected", on ? "true" : "false");
+      t.tabIndex = on ? 0 : -1;
+      t.addEventListener("click", function () { sel(t, false); });
+    });
+    var list = mount.querySelector(".jx-tabs");
+    if (list) list.addEventListener("keydown", function (e) {
+      var i = tabs.indexOf(document.activeElement); if (i < 0) return;
+      var n = tabs.length, j = -1;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") j = (i + 1) % n;
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") j = (i - 1 + n) % n;
+      else if (e.key === "Home") j = 0; else if (e.key === "End") j = n - 1;
+      if (j >= 0) { e.preventDefault(); sel(tabs[j], true); }
     });
   }
   function wireFaq() {

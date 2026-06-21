@@ -18,6 +18,27 @@
     return f ? f.value : "—";
   }
 
+  /* ---- coordinate lookups (for globe focus) built from the full list ---- */
+  var COORDS = {}, COORDS_ISO = {};
+  ALL.forEach(function (r) {
+    if (typeof r[3] !== "number") return;
+    var s = slugify(r[0]);
+    if (COORDS[s] === undefined) COORDS[s] = [r[3], r[4]];
+    if (COORDS_ISO[r[1]] === undefined) COORDS_ISO[r[1]] = [r[3], r[4]];
+  });
+  function focusGlobe(slug, iso) {
+    if (!window.Globe) return;
+    var c = (slug && COORDS[slug]) || (iso && COORDS_ISO[iso]);
+    if (c) window.Globe.focusAt(c[0], c[1]); else window.Globe.clearSearch();
+  }
+
+  /* ---- long corporate-tax sentences → tidy bullet list ---- */
+  function taxBullets(val) {
+    var parts = String(val).split(/;\s*/).map(function (s) { return s.trim(); }).filter(Boolean);
+    if (parts.length < 2) return null;
+    return '<ul class="jx-taxbul">' + parts.map(function (p) { return '<li>' + p + '</li>'; }).join("") + '</ul>';
+  }
+
   /* ---- quick pills ---- */
   var quick = document.getElementById("hubQuick");
   if (quick) {
@@ -34,13 +55,18 @@
       var tax = metric(j, /corp/i), setup = metric(j, /setup|active|timing/i);
       var price = (j.bundle && j.bundle.priceLabel) || "—";
       var tags = (j.bestForTags || []).slice(0, 2).map(function (t) { return '<span class="hub-card__tag">' + t + '</span>'; }).join("");
-      return '<a class="bento-card hub-card reveal" data-slot="card" data-name="' + j.name.toLowerCase() + '" href="jurisdiction.html?j=' + j.slug + '">' +
+      var taxBul = taxBullets(tax);
+      var taxRow = taxBul
+        ? '<div class="hub-card__metric--stack"><dt>Corp tax</dt>' + taxBul + '</div>'
+        : '<div><dt>Corp tax</dt><dd>' + tax + '</dd></div>';
+      return '<a class="bento-card hub-card reveal" data-slot="card" data-name="' + j.name.toLowerCase() + '" data-iso="' + j.iso + '" data-slug="' + j.slug + '" href="jurisdiction.html?j=' + j.slug + '">' +
         '<div class="bento-card__border"></div><div class="bento-card__border-glow"></div>' +
         '<div class="bento-card__inner">' +
         '<div class="hub-card__top"><span class="jx-flag-chip"><img src="' + flag(j.iso) + '" alt="" width="34" height="26" /></span>' +
         '<div class="hub-card__id"><b>' + j.name + '</b><small>' + (j.region || "") + '</small></div></div>' +
-        '<dl class="hub-card__metrics"><div><dt>Corp tax</dt><dd>' + tax + '</dd></div>' +
-        '<div><dt>Setup</dt><dd>' + setup + '</dd></div><div><dt>From</dt><dd>' + price + '</dd></div></dl>' +
+        '<dl class="hub-card__metrics">' + taxRow +
+        '<div class="hub-card__metric--stack"><dt>Setup</dt><dd>' + setup + '</dd></div>' +
+        '<div class="hub-card__metric--stack"><dt>From</dt><dd>' + price + '</dd></div></dl>' +
         '<div class="hub-card__tags">' + tags + '</div>' +
         '<span class="hub-card__go">Explore ' + j.name + ' <span aria-hidden="true">→</span></span>' +
         '</div></a>';
@@ -63,7 +89,10 @@
     allMount.innerHTML = regionKeys.map(function (region) {
       var cards = regions[region].map(function (j) {
         var rich = !!BY[j.slug];
-        return '<a class="hub-mini" data-name="' + j.name.toLowerCase() + '" href="jurisdiction.html?j=' + j.slug + '">' +
+        // flagship slugs have a full guide; the rest carry name/iso/region in the
+        // URL so the detail page can render a real branded landing (not a stub).
+        var href = "jurisdiction.html?j=" + j.slug + (rich ? "" : "&n=" + encodeURIComponent(j.name) + "&iso=" + j.iso + "&r=" + encodeURIComponent(j.region));
+        return '<a class="hub-mini" data-name="' + j.name.toLowerCase() + '" data-iso="' + j.iso + '" data-slug="' + j.slug + '" href="' + href + '">' +
           '<span class="jx-flag-chip jx-flag-chip--sm"><img src="' + flag(j.iso) + '" alt="" width="24" height="18" loading="lazy" /></span>' +
           '<span class="hub-mini__name">' + j.name + (rich ? ' <span class="hub-mini__dot" title="In-depth guide" aria-hidden="true"></span>' : '') + '</span>' +
           '<span class="hub-mini__go" aria-hidden="true">→</span></a>';
@@ -74,37 +103,17 @@
     }).join("");
   }
 
-  /* ---- globe: show full sphere immediately + parallax on mouse ---- */
-  function bootGlobe() {
-    if (!window.Globe) return;
-    window.Globe.setProgress(1);
-    // subtle cursor parallax on the hub hero
-    var hero = document.querySelector(".hub-hero");
-    if (hero) {
-      hero.addEventListener("pointermove", function (e) {
-        var r = hero.getBoundingClientRect();
-        var nx = (e.clientX - r.left) / r.width - 0.5;
-        var ny = (e.clientY - r.top) / r.height - 0.5;
-        window.Globe.setParallax(nx * 0.4, ny * 0.4);
-      }, { passive: true });
-    }
-  }
-  // boot after globe.js has had a chance to initialize
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bootGlobe);
-  else setTimeout(bootGlobe, 0);
+  /* cobe self-manages its own pointer interaction + always shows the full
+     sphere, so the old d3 bootGlobe()/parallax wiring is no longer needed. */
 
-  /* ---- quick pills: click → focus globe ---- */
+  /* ---- quick pills: hover → focus globe (click navigates) ---- */
   if (quick) {
-    quick.addEventListener("click", function (e) {
-      var pill = e.target.closest(".hub-pill");
-      if (pill && window.Globe) {
-        var href = pill.getAttribute("href") || "";
-        var iso = ALL.filter(function (r) {
-          return href.indexOf(slugify(r[0])) > -1;
-        }).map(function (r) { return r[1]; })[0] || "";
-        if (iso) window.Globe.focus(iso);
-      }
-    });
+    quick.addEventListener("pointerenter", function (e) {
+      var pill = e.target.closest && e.target.closest(".hub-pill");
+      if (!pill) return;
+      var slug = (pill.getAttribute("href") || "").split("j=")[1] || "";
+      focusGlobe(slug, null);
+    }, true);
   }
 
   /* ---- live search (filters cards + directory + globe) ---- */
@@ -112,15 +121,19 @@
   var empty = document.getElementById("jxEmpty");
   var form = document.getElementById("hubSearchForm");
   if (form) form.addEventListener("submit", function (e) { e.preventDefault(); });
+  // screen-reader status: announce filtered result counts (search updates silently otherwise)
+  var status = document.createElement("span");
+  status.className = "sr-only"; status.setAttribute("role", "status"); status.setAttribute("aria-live", "polite");
+  if (input && input.parentNode) input.parentNode.appendChild(status);
   if (input) {
     input.addEventListener("input", function () {
       var q = input.value.trim().toLowerCase();
-      var firstIso = null, anyMini = 0;
+      var firstSlug = null, firstIso = null, anyMini = 0;
       // popular cards
       document.querySelectorAll("#jxPopular .hub-card").forEach(function (c) {
         var hit = !q || c.dataset.name.indexOf(q) > -1;
         c.style.display = hit ? "" : "none";
-        if (hit && !firstIso) firstIso = c.dataset.iso || null;
+        if (hit && !firstSlug) { firstSlug = c.dataset.slug || null; firstIso = c.dataset.iso || null; }
       });
       // all minis + region visibility
       document.querySelectorAll(".hub-region").forEach(function (rg) {
@@ -128,17 +141,16 @@
         rg.querySelectorAll(".hub-mini").forEach(function (m) {
           var hit = !q || m.dataset.name.indexOf(q) > -1;
           m.style.display = hit ? "" : "none";
-          if (hit) { shown++; if (!firstIso) firstIso = m.dataset.iso || null; }
+          if (hit) { shown++; if (!firstSlug) { firstSlug = m.dataset.slug || null; firstIso = m.dataset.iso || null; } }
         });
         rg.style.display = shown ? "" : "none";
         anyMini += shown;
       });
       if (empty) empty.hidden = anyMini > 0;
+      if (status) status.textContent = q ? (anyMini + " jurisdiction" + (anyMini === 1 ? "" : "s") + " match “" + q + "”") : "";
       // globe focus
-      if (window.Globe) {
-        if (q && firstIso) window.Globe.focus(firstIso);
-        else window.Globe.clearSearch();
-      }
+      if (q && (firstSlug || firstIso)) focusGlobe(firstSlug, firstIso);
+      else if (window.Globe) window.Globe.clearSearch();
     });
   }
 

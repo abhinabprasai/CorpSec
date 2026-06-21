@@ -9,15 +9,17 @@
   "use strict";
 
   /* ---- single source of truth for jurisdictions (cards + globe) ---- */
+  /* Tax figures are concise teasers (effective / tiered, conditions apply);
+     the per-jurisdiction pages carry the full headline-vs-effective detail. */
   var JX = [
-    { iso: "SG", name: "Singapore", region: "Asia", lat: 1.3521, lng: 103.8198, tax: "8.5%", setup: "2 days", from: "SGD 1,600", live: true, popular: true, accent: "#ff5a5f", hub: true },
-    { iso: "GB", name: "United Kingdom", region: "Europe", lat: 51.5074, lng: -0.1278, tax: "19%", setup: "48 hours", from: "£249", live: true, popular: true, accent: "#5b8def" },
+    { iso: "SG", name: "Singapore", region: "Asia", lat: 1.3521, lng: 103.8198, tax: "~8.25%*", setup: "2 days", from: "SGD 1,600", live: true, popular: true, accent: "#ff5a5f", hub: true },
+    { iso: "GB", name: "United Kingdom", region: "Europe", lat: 51.5074, lng: -0.1278, tax: "19–25%", setup: "48 hours", from: "£249", live: true, popular: true, accent: "#5b8def" },
     { iso: "US", name: "Texas, USA", region: "North America", lat: 30.2672, lng: -97.7431, tax: "0%**", setup: "48 hours", from: "$780", live: true, accent: "#5b9bff" },
-    { iso: "AE", name: "Dubai (UAE)", region: "Middle East", lat: 25.2048, lng: 55.2708, tax: "0%*", setup: "2 weeks", from: "AED 30,000", live: true, popular: true, accent: "#2bb673" },
-    { iso: "HK", name: "Hong Kong", region: "Asia", lat: 22.3193, lng: 114.1694, tax: "8.25%", setup: "~1 week", from: "HK$6,950", live: true, accent: "#ff6b6b" },
+    { iso: "AE", name: "Dubai (UAE)", region: "Middle East", lat: 25.2048, lng: 55.2708, tax: "0–9%*", setup: "2 weeks", from: "AED 30,000", live: true, popular: true, accent: "#2bb673" },
+    { iso: "HK", name: "Hong Kong", region: "Asia", lat: 22.3193, lng: 114.1694, tax: "8.25–16.5%", setup: "~1 week", from: "HK$6,950", live: true, accent: "#ff6b6b" },
     { iso: "FR", name: "France", region: "Europe", lat: 48.8566, lng: 2.3522, tax: "25%", setup: "5 days", from: "€1,099", live: true, accent: "#6e8bff" },
     { iso: "BE", name: "Belgium", region: "Europe", lat: 50.8503, lng: 4.3517, tax: "25%", setup: "5 days", from: "€1,500", live: true, accent: "#ffce6e" },
-    { iso: "EE", name: "Estonia", region: "Europe", lat: 59.437, lng: 24.7536, tax: "20%", setup: "Coming soon", from: "—", live: false, popular: true, accent: "#7db6ff" }
+    { iso: "EE", name: "Estonia", region: "Europe", lat: 59.437, lng: 24.7536, tax: "0–22%*", setup: "Coming soon", from: "—", live: false, popular: true, accent: "#7db6ff" }
   ];
   window.JURIS_DATA = JX;
 

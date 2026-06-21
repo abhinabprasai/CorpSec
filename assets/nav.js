@@ -9,19 +9,6 @@
     : (window.matchMedia && window.matchMedia("(prefers-reduced-motion:reduce)").matches);
   var root = document.documentElement;
 
-  /* theme — same localStorage key ("theme") as app.js so it persists across pages */
-  var stored = null;
-  try { stored = localStorage.getItem("theme"); } catch (e) {}
-  if (stored === "light" || stored === "dark") root.dataset.theme = stored;
-  var themeToggle = document.getElementById("themeToggle");
-  if (themeToggle) {
-    themeToggle.addEventListener("click", function () {
-      var next = root.dataset.theme === "light" ? "dark" : "light";
-      root.dataset.theme = next;
-      try { localStorage.setItem("theme", next); } catch (e) {}
-    });
-  }
-
   /* nav: glass on scroll + collapse on scroll-down */
   var nav = document.getElementById("nav");
   if (nav) {

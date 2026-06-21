@@ -608,6 +608,10 @@
           "value": "5%"
         },
         {
+          "label": "CT registration",
+          "value": "Within 3 months of incorporation (UAE FTA, 2024) — AED 10,000 penalty if late"
+        },
+        {
           "label": "Resident director",
           "value": "Not required"
         },
