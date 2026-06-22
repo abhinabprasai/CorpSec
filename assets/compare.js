@@ -1,4 +1,7 @@
-/* compare.js — jurisdiction comparison table for compare.html */
+/* compare.js — jurisdiction comparison for compare.html.
+   Starts empty: the user searches (combobox) or taps a popular chip to add up to
+   5 jurisdictions, which render as side-by-side columns. No preselection, no
+   modal — an inline search + quick-add chips drive everything. */
 (function () {
   "use strict";
 
@@ -131,11 +134,10 @@
     {key:"banking",     label:"Banking"}
   ];
 
-  /* ── State ───────────────────────────────────────────────────────────────── */
-  var DEFAULT_SLUGS = ["singapore","hong-kong","united-kingdom","estonia"];
-  var activeCols = []; /* {key, name, iso, region, data, isStub} */
+  var FLAGSHIP = ["singapore","hong-kong","united-kingdom","estonia","dubai","delaware"];
+  var MAX = 5;
+  var activeCols = []; /* {key, name, iso, region, data, isStub} — empty by default */
 
-  /* ── Search index ────────────────────────────────────────────────────────── */
   var SEARCH_IDX = [];
   var NAME_TO_SLUG = {
     "Singapore":"singapore","United Kingdom":"united-kingdom",
@@ -143,9 +145,9 @@
     "Estonia":"estonia","Hong Kong":"hong-kong"
   };
 
-  /* ── Helpers ─────────────────────────────────────────────────────────────── */
   function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
   function slugify(n){ return n.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); }
+  function flag(iso){ return "https://flagcdn.com/w40/"+iso+".png"; }
 
   function buildSearchIndex(){
     var all = window.JURISDICTIONS_ALL || [];
@@ -156,6 +158,8 @@
       SEARCH_IDX.push({name:name,iso:iso,region:region,slug:slug,key:key});
     });
   }
+  function entryByKey(key){ for(var i=0;i<SEARCH_IDX.length;i++) if(SEARCH_IDX[i].key===key) return SEARCH_IDX[i]; return null; }
+  function entryBySlug(slug){ for(var i=0;i<SEARCH_IDX.length;i++) if(SEARCH_IDX[i].slug===slug) return SEARCH_IDX[i]; return null; }
 
   function makeCol(entry){
     if(entry.slug && CDATA[entry.slug]){
@@ -195,152 +199,186 @@
     return isNone?'<span class="cmp-none">'+esc(val)+'</span>':'<span>'+esc(val)+'</span>';
   }
 
-  /* ── Table render ────────────────────────────────────────────────────────── */
+  /* ── Table / empty state render ──────────────────────────────────────────── */
   function render(){
     var outer=document.getElementById("cmpOuter");
     if(!outer) return;
+
+    if(!activeCols.length){
+      outer.classList.add("cmp-outer--empty");
+      outer.innerHTML=
+        '<div class="cmp-empty">'+
+          '<span class="cmp-empty__ic" aria-hidden="true">'+
+            '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>'+
+          '</span>'+
+          '<h3 class="cmp-empty__title">Build your comparison</h3>'+
+          '<p class="cmp-empty__sub">Search above or pick a popular jurisdiction below — add up to 5 and compare them side by side.</p>'+
+          '<div class="cmp-chips__row cmp-chips__row--empty" id="cmpEmptyChips"></div>'+
+        '</div>';
+      renderChips(document.getElementById("cmpEmptyChips"));
+      syncTools();
+      return;
+    }
+
+    outer.classList.remove("cmp-outer--empty");
     var n=activeCols.length;
-    var canAdd=n<5, canRemove=n>1;
 
     var heads=activeCols.map(function(col){
-      var rm=canRemove?'<button class="cmp-remove" data-key="'+esc(col.key)+'" aria-label="Remove '+esc(col.name)+'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>':'';
-      var detail=col.data.slug?'<a class="cmp-col-detail" href="jurisdiction.html?j='+col.data.slug+'">View details →</a>':'<span class="cmp-th__stub">Details on request</span>';
-      return '<th class="cmp-th" scope="col">'+rm+
-        '<img class="cmp-flag" src="https://flagcdn.com/w40/'+esc(col.iso)+'.png" alt="" width="24" height="16" loading="lazy">'+
+      var detail=col.data.slug
+        ? '<a class="cmp-col-detail" href="jurisdiction.html?j='+col.data.slug+'">View details →</a>'
+        : '<span class="cmp-th__stub">Details on request</span>';
+      return '<th class="cmp-th" scope="col">'+
+        '<div class="cmp-th__top">'+
+          '<img class="cmp-flag" src="'+flag(esc(col.iso))+'" alt="" width="26" height="18" loading="lazy">'+
+          '<button class="cmp-remove" data-key="'+esc(col.key)+'" aria-label="Remove '+esc(col.name)+'">'+
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'+
+          '</button>'+
+        '</div>'+
         '<span class="cmp-th__name">'+esc(col.name)+'</span>'+
+        '<span class="cmp-th__region">'+esc(col.region)+'</span>'+
         detail+'</th>';
     }).join("");
 
-    var addTh=canAdd?'<th class="cmp-th cmp-th--add" scope="col"><button class="cmp-add-btn" id="cmpAddBtn" aria-label="Add a jurisdiction to compare"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Add</span></button></th>':'';
-
     var rows=ROWS.map(function(row){
       if(row.type==="cat"){
-        return '<tr class="cmp-cat-row"><td class="cmp-cat-cell" colspan="'+(n+(canAdd?2:1))+'">'+esc(row.label)+'</td></tr>';
+        return '<tr class="cmp-cat-row"><td class="cmp-cat-cell" colspan="'+(n+1)+'">'+esc(row.label)+'</td></tr>';
       }
       var cells=activeCols.map(function(col){
         return '<td class="cmp-td">'+renderCell(row,col)+'</td>';
       }).join("");
-      var addPad=canAdd?'<td class="cmp-td cmp-td--add"></td>':'';
-      return '<tr class="cmp-row"><td class="cmp-td cmp-td--label">'+esc(row.label)+'</td>'+cells+addPad+'</tr>';
+      return '<tr class="cmp-row"><th class="cmp-td cmp-td--label" scope="row">'+esc(row.label)+'</th>'+cells+'</tr>';
     }).join("");
 
     outer.innerHTML='<div class="cmp-scroll"><table class="cmp-table">'+
-      '<thead><tr><th class="cmp-th cmp-th--label" scope="col"></th>'+heads+addTh+'</tr></thead>'+
+      '<thead><tr><td class="cmp-th cmp-th--label"><span class="cmp-th__metric">Metric</span></td>'+heads+'</tr></thead>'+
       '<tbody>'+rows+'</tbody></table></div>';
 
-    bindTableEvents();
-  }
-
-  function bindTableEvents(){
-    document.querySelectorAll(".cmp-remove").forEach(function(btn){
+    outer.querySelectorAll(".cmp-remove").forEach(function(btn){
       btn.addEventListener("click",function(){ removeCol(this.dataset.key); });
     });
-    var add=document.getElementById("cmpAddBtn");
-    if(add) add.addEventListener("click",function(e){ e.stopPropagation(); openSearch(); });
+    syncTools();
   }
 
-  function removeCol(key){
-    activeCols=activeCols.filter(function(c){return c.key!==key;});
-    render();
-  }
-
-  function addCol(entry){
-    if(activeCols.some(function(c){return c.key===entry.key;})) return;
-    if(activeCols.length>=5) return;
+  function removeCol(key){ activeCols=activeCols.filter(function(c){return c.key!==key;}); render(); }
+  function addByKey(key){
+    var entry=entryByKey(key);
+    if(!entry) return false;
+    if(activeCols.some(function(c){return c.key===entry.key;})) return false;
+    if(activeCols.length>=MAX) return false;
     activeCols.push(makeCol(entry));
     render();
-    closeSearch();
+    return true;
   }
 
-  /* ── Search overlay ──────────────────────────────────────────────────────── */
-  var overlay=null;
-
-  function openSearch(){
-    if(!overlay){
-      overlay=document.createElement("div");
-      overlay.className="cmp-overlay";
-      overlay.setAttribute("role","dialog");
-      overlay.setAttribute("aria-modal","true");
-      overlay.setAttribute("aria-label","Add jurisdiction");
-      overlay.innerHTML='<div class="cmp-panel">'+
-        '<div class="cmp-panel__head">'+
-          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'+
-          '<input class="cmp-search-input" type="search" id="cmpSearchQ" placeholder="Search 79 jurisdictions…" autocomplete="off" aria-label="Search jurisdictions">'+
-          '<button class="cmp-panel__close" id="cmpCloseBtn" aria-label="Close">'+
-            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'+
-          '</button>'+
-        '</div>'+
-        '<ul class="cmp-results" id="cmpResults" role="listbox" aria-label="Matching jurisdictions"></ul>'+
-        '<p class="cmp-panel__tip">Jurisdictions with <span class="cmp-result-badge" style="font-size:10px">Full data</span> have detailed comparison rows. Others show key fields.</p>'+
-      '</div>';
-      document.body.appendChild(overlay);
-
-      var q=document.getElementById("cmpSearchQ");
-      q.addEventListener("input",function(){ renderResults(this.value); });
-      document.getElementById("cmpCloseBtn").addEventListener("click",closeSearch);
-      overlay.addEventListener("click",function(e){ if(e.target===overlay) closeSearch(); });
-      overlay.addEventListener("keydown",function(e){ if(e.key==="Escape") closeSearch(); });
-
-      document.getElementById("cmpResults").addEventListener("click",function(e){
-        var li=e.target.closest("li[data-key]");
-        if(li) addByKey(li.dataset.key);
-      });
-      document.getElementById("cmpResults").addEventListener("keydown",function(e){
-        var li=e.target.closest("li[data-key]");
-        if(li&&(e.key==="Enter"||e.key===" ")){ e.preventDefault(); addByKey(li.dataset.key); }
-      });
-
-      renderResults("");
-    } else {
-      overlay.hidden=false;
-    }
-    overlay.hidden=false;
-    var q=document.getElementById("cmpSearchQ");
-    if(q){ q.value=""; renderResults(""); q.focus(); }
+  /* ── Toolbar: search combobox + quick-add chips + counter ────────────────── */
+  function renderTools(){
+    var tools=document.getElementById("cmpTools");
+    if(!tools) return;
+    tools.innerHTML=
+      '<div class="cmp-combo" id="cmpCombo">'+
+        '<svg class="cmp-combo__ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>'+
+        '<input class="cmp-combo__in" id="cmpSearch" type="text" role="combobox" aria-expanded="false" aria-controls="cmpList" aria-autocomplete="list" aria-label="Search jurisdictions to add" autocomplete="off" placeholder="Search 79 jurisdictions to add…">'+
+        '<span class="cmp-combo__count" id="cmpCount" aria-live="polite"></span>'+
+        '<ul class="cmp-combo__list" id="cmpList" role="listbox" aria-label="Matching jurisdictions" hidden></ul>'+
+      '</div>'+
+      '<div class="cmp-chips"><span class="cmp-chips__lab">Popular</span><span class="cmp-chips__row" id="cmpChips"></span></div>';
+    wireCombo();
+    renderChips(document.getElementById("cmpChips"));
+    syncTools();
   }
 
-  function closeSearch(){ if(overlay) overlay.hidden=true; }
-
-  function addByKey(key){
-    var entry=SEARCH_IDX.find(function(e){return e.key===key;});
-    if(entry) addCol(entry);
-  }
-
-  function renderResults(q){
-    var ul=document.getElementById("cmpResults");
-    if(!ul) return;
-    q=q.trim().toLowerCase();
-    var active={};
-    activeCols.forEach(function(c){active[c.key]=true;});
-    var isFull=activeCols.length>=5;
-
-    var matches=SEARCH_IDX.filter(function(e){
-      return !q||e.name.toLowerCase().indexOf(q)!==-1||e.region.toLowerCase().indexOf(q)!==-1;
-    }).slice(0,30);
-
-    ul.innerHTML=matches.map(function(e){
-      var added=active[e.key];
-      var disabled=added||isFull;
-      var hasFull=!!e.slug;
-      return '<li role="option" class="cmp-result'+(disabled?' cmp-result--off':'')+(hasFull?' cmp-result--rich':'')+'"'+
-        (!disabled?' data-key="'+esc(e.key)+'" tabindex="0"':'')+' aria-selected="'+(added?'true':'false')+'">'+
-        '<img src="https://flagcdn.com/w40/'+esc(e.iso)+'.png" alt="" width="20" height="14" loading="lazy" class="cmp-result-flag">'+
-        '<span class="cmp-result-name">'+esc(e.name)+'</span>'+
-        '<span class="cmp-result-region">'+esc(e.region)+'</span>'+
-        (hasFull?'<span class="cmp-result-badge">Full data</span>':'')+
-        (added?'<span class="cmp-result-added">Added</span>':'')+
-      '</li>';
+  function renderChips(mount){
+    if(!mount) return;
+    var active={}; activeCols.forEach(function(c){active[c.key]=true;});
+    var full=activeCols.length>=MAX;
+    mount.innerHTML=FLAGSHIP.map(function(slug){
+      var e=entryBySlug(slug); if(!e) return "";
+      var on=!!active[e.key];
+      return '<button type="button" class="cmp-chip'+(on?" is-added":"")+'" data-key="'+esc(e.key)+'"'+((on||full)&&!on?' disabled':'')+(on?' aria-pressed="true"':'')+'>'+
+        '<img src="'+flag(esc(e.iso))+'" alt="" width="18" height="13" loading="lazy">'+
+        '<span>'+esc(e.name)+'</span>'+
+        (on
+          ? '<svg class="cmp-chip__mark" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
+          : '<svg class="cmp-chip__mark" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>')+
+      '</button>';
     }).join("");
+    mount.querySelectorAll(".cmp-chip").forEach(function(b){
+      b.addEventListener("click",function(){
+        if(b.classList.contains("is-added")){ removeCol(b.dataset.key); }
+        else if(!b.disabled){ addByKey(b.dataset.key); }
+      });
+    });
+  }
+
+  function syncTools(){
+    var count=document.getElementById("cmpCount");
+    if(count) count.textContent=activeCols.length+" / "+MAX;
+    var input=document.getElementById("cmpSearch");
+    if(input){
+      var full=activeCols.length>=MAX;
+      input.disabled=full;
+      input.placeholder=full?"Maximum 5 reached — remove one to add another":"Search 79 jurisdictions to add…";
+    }
+    renderChips(document.getElementById("cmpChips"));
+  }
+
+  function wireCombo(){
+    var input=document.getElementById("cmpSearch");
+    var list=document.getElementById("cmpList");
+    if(!input||!list) return;
+    var filtered=[], idx=-1, open=false;
+
+    function build(q){
+      q=(q||"").trim().toLowerCase();
+      var active={}; activeCols.forEach(function(c){active[c.key]=true;});
+      filtered=SEARCH_IDX.filter(function(e){
+        return !q||e.name.toLowerCase().indexOf(q)!==-1||e.region.toLowerCase().indexOf(q)!==-1;
+      }).slice(0,40);
+      list.innerHTML=filtered.length?filtered.map(function(e,i){
+        var on=!!active[e.key];
+        return '<li role="option" id="cmpopt-'+i+'" class="cmp-opt'+(on?" is-added":"")+'" data-key="'+esc(e.key)+'" aria-selected="false">'+
+          '<img class="cmp-opt__flag" src="'+flag(esc(e.iso))+'" alt="" width="22" height="16" loading="lazy">'+
+          '<span class="cmp-opt__name">'+esc(e.name)+'</span>'+
+          '<span class="cmp-opt__region">'+esc(e.region)+'</span>'+
+          (e.slug?'<span class="cmp-opt__badge">Full data</span>':'')+
+          (on?'<span class="cmp-opt__added">Added</span>':'')+
+        '</li>';
+      }).join(""):'<li class="cmp-opt cmp-opt--empty" role="presentation">No jurisdiction found</li>';
+      idx=-1;
+    }
+    function show(){ if(input.disabled) return; open=true; list.hidden=false; input.setAttribute("aria-expanded","true"); }
+    function hide(){ open=false; list.hidden=true; input.setAttribute("aria-expanded","false"); input.removeAttribute("aria-activedescendant"); idx=-1; }
+    function opts(){ return list.querySelectorAll(".cmp-opt[data-key]"); }
+    function setActive(i){
+      var o=opts(); o.forEach(function(x){x.classList.remove("is-active");x.setAttribute("aria-selected","false");});
+      idx=i;
+      if(i>=0&&o[i]){ o[i].classList.add("is-active"); o[i].setAttribute("aria-selected","true"); input.setAttribute("aria-activedescendant",o[i].id); o[i].scrollIntoView({block:"nearest"}); }
+    }
+    function pick(key){
+      var ok=addByKey(key);
+      if(!ok) return;
+      if(activeCols.length>=MAX){ hide(); input.blur(); return; }
+      input.value=""; build(""); show(); input.focus();
+    }
+
+    input.addEventListener("focus",function(){ build(input.value); show(); });
+    input.addEventListener("input",function(){ build(input.value); show(); });
+    input.addEventListener("keydown",function(e){
+      if(e.key==="ArrowDown"){ e.preventDefault(); if(!open){build(input.value);show();} setActive(Math.min(opts().length-1,idx+1)); }
+      else if(e.key==="ArrowUp"){ e.preventDefault(); setActive(Math.max(0,idx-1)); }
+      else if(e.key==="Enter"){ var o=opts()[idx>=0?idx:0]; if(o){ e.preventDefault(); pick(o.dataset.key); } }
+      else if(e.key==="Escape"){ hide(); }
+    });
+    list.addEventListener("mousedown",function(e){ var li=e.target.closest(".cmp-opt[data-key]"); if(!li) return; e.preventDefault(); pick(li.dataset.key); });
+    list.addEventListener("pointermove",function(e){ var li=e.target.closest(".cmp-opt[data-key]"); if(!li) return; var arr=Array.prototype.slice.call(opts()); setActive(arr.indexOf(li)); });
+    input.addEventListener("blur",function(){ setTimeout(hide,150); });
   }
 
   /* ── Init ────────────────────────────────────────────────────────────────── */
   function init(){
     buildSearchIndex();
-    DEFAULT_SLUGS.forEach(function(slug){
-      var e=SEARCH_IDX.find(function(x){return x.slug===slug;});
-      if(e) activeCols.push(makeCol(e));
-    });
-    render();
+    renderTools();
+    render();   // empty state by default — no preselected countries
   }
 
   if(document.readyState!=="loading") init();

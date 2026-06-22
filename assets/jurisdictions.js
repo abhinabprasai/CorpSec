@@ -121,15 +121,25 @@
   strip.addEventListener("pointerenter", function () { hovering = true; });
   strip.addEventListener("click", function (e) { if (moved) e.preventDefault(); }, true);
 
-  /* ---- continuous auto-scroll, pauses on drag/hover ---- */
+  /* ---- continuous auto-scroll, pauses on drag/hover/off-screen ---- */
   if (!reduce) {
-    (function autoScroll() {
+    var half = 0, visibleStrip = true, last = 0, _stripRT;
+    function measureHalf() { half = track.scrollWidth / 2; }
+    measureHalf();
+    window.addEventListener("resize", function () { clearTimeout(_stripRT); _stripRT = setTimeout(measureHalf, 200); }, { passive: true });
+    window.addEventListener("load", measureHalf);
+    // do no work while the strip is scrolled out of view (mirrors the globe/cycle gating)
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (es) { visibleStrip = es[0].isIntersecting; }, { threshold: 0 }).observe(strip);
+    }
+    function autoScroll(t) {
       requestAnimationFrame(autoScroll);
-      if (dragging || hovering) return;
-      var half = track.scrollWidth / 2;
-      if (!half) return;
-      strip.scrollLeft += 0.5;
+      if (dragging || hovering || !visibleStrip || document.hidden) { last = t; return; }
+      if (!half) { measureHalf(); if (!half) return; }
+      var dt = last ? Math.min(50, t - last) : 16.667; last = t;   // frame-rate independent
+      strip.scrollLeft += 0.03 * dt;                                // ~0.5px/frame @60fps
       if (strip.scrollLeft >= half) strip.scrollLeft -= half;
-    })();
+    }
+    requestAnimationFrame(autoScroll);
   }
 })();

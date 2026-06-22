@@ -17,16 +17,25 @@
   // LOW = treat as a constrained device. deviceMemory/hardwareConcurrency are
   // undefined on Safari/iOS → default 8 (capable); phones still caught by coarse+smallVP.
   var LOW = reduce || saveData || smallVP || fewCores || lowMem;
+  // PHONE: a touch device with a small min-dimension. This — NOT viewport height
+  // or core count — is what we use to drop heavy visuals. A short/modest desktop
+  // or a tablet is NOT a phone and keeps the full experience.
+  var phone = coarse && Math.min(window.innerWidth, window.innerHeight) < 700;
 
   window.__PERF = {
     low: LOW,
+    // mobile === phone. The hero globe is dropped on phones only (CSS gradient
+    // stands in); the grain/particle field runs on EVERY device; 3D card graphics
+    // load on everything except phones. Tablets + desktops always get the globe.
+    mobile: phone,
     reduce: reduce,
     coarse: coarse,
     saveData: saveData,
     // DPR: capable keeps native (≤2); low-power drops to 1.25 (or 1 under reduced-motion)
     dpr: LOW ? (reduce ? 1 : 1.25) : Math.min(window.devicePixelRatio || 1, 2),
-    // how many concurrent WebGL (bento3d) contexts we allow
-    maxGfx: LOW ? (smallVP ? 1 : 2) : 5,
+    // concurrent WebGL (bento3d) contexts: phones 1, short/modest desktops 3
+    // (enough for all card graphics), capable desktops 5.
+    maxGfx: phone ? 1 : (LOW ? 3 : 5),
     // point-cloud density multiplier
     density: LOW ? 0.45 : 1
   };

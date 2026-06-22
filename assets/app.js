@@ -87,18 +87,8 @@
     }, 1600);
   }
 
-  /* ---------- hide edge rails over dark sections ---------- */
-  if ("IntersectionObserver" in window) {
-    var darkEls = document.querySelectorAll(".hero,.juris2,.band-dark,.band-primary");
-    var darkState = new Map();
-    var railIO = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) { darkState.set(e.target, e.isIntersecting); });
-      var anyDark = false;
-      darkState.forEach(function (v) { if (v) anyDark = true; });
-      document.body.classList.toggle("rails-hidden", anyDark);
-    }, { threshold: 0 });
-    darkEls.forEach(function (el) { railIO.observe(el); });
-  }
+  /* edge-rail hiding over dark sections now lives in interactions.js (initRails),
+     so every page shares identical appear/disappear behaviour. */
 
   /* ---------- testimonial cycle cards: vertical autoscroll + roving dark highlight ---------- */
   (function () {
@@ -232,94 +222,125 @@
     });
   }
 
-  /* ---------- jurisdiction search (liquid glass) + globe linkage ---------- */
+  /* ---------- passport + destination comboboxes → globe route ----------
+     Two searchable selects ("My passport", "Country to incorporate"). Pick both
+     and the globe draws a great-circle arc with a flag pin at each end; pick one
+     and it simply flies to that country. */
   var JD = window.JURIS_DATA || [];
   var ALLJ = window.JURISDICTIONS_ALL || [];
-  var searchInput = document.getElementById("jSearchInput");
-  var searchResults = document.getElementById("jSearchResults");
-
   function norm(s) { return s.replace(/[(),]/g, "").replace(/\s+/g, " ").trim().toLowerCase(); }
-  function jxMatch(name) {
-    for (var i = 0; i < JD.length; i++) if (norm(JD[i].name) === norm(name)) return JD[i];
-    return null;
-  }
-  function selectResult(j) {
-    var jx = jxMatch(j[0]);
-    if (!window.Globe) return;
-    if (jx) { window.Globe.clearSearch(); window.Globe.focus(jx.iso); }
-    else { window.Globe.focus(null); window.Globe.focusAt(j[3], j[4], { name: j[0], iso: j[1].toUpperCase(), region: j[2] }); }
-  }
-  function resultHTML(j, i) {
-    return '<button type="button" class="jresult' + (i === 0 ? " active" : "") + '" data-idx="' + i + '">' +
-      '<img class="jresult-flag" src="https://flagcdn.com/w40/' + j[1] + '.png" alt="" loading="lazy" width="22" height="22">' +
-      '<span class="jresult-name">' + j[0] + '</span>' +
-      '<span class="jresult-region">' + j[2] + '</span>' +
-    '</button>';
-  }
-  if (searchInput && searchResults && ALLJ.length) {
-    searchInput.addEventListener("input", function () {
-      var q = searchInput.value.trim().toLowerCase();
-      if (!q) {
-        searchResults.innerHTML = "";
-        if (window.Globe) window.Globe.clearSearch();
-        return;
-      }
-      var list = ALLJ.filter(function (j) { return j[0].toLowerCase().indexOf(q) >= 0; }).slice(0, 8);
-      if (!list.length) {
-        searchResults.innerHTML = '<div class="jsearch-empty">No jurisdiction found.</div>';
-        if (window.Globe) window.Globe.clearSearch();
-        return;
-      }
-      searchResults.innerHTML = list.map(resultHTML).join("");
-      searchResults.querySelectorAll(".jresult").forEach(function (btn, i) {
-        btn.addEventListener("mouseenter", function () {
-          searchResults.querySelectorAll(".jresult").forEach(function (b) { b.classList.remove("active"); });
-          btn.classList.add("active");
-          selectResult(list[i]);
-        });
-        btn.addEventListener("click", function () {
-          searchResults.querySelectorAll(".jresult").forEach(function (b) { b.classList.remove("active"); });
-          btn.classList.add("active");
-          selectResult(list[i]);
-        });
-      });
-      selectResult(list[0]);
-    });
+  function flagSm(iso) { return "https://flagcdn.com/w40/" + (iso || "").toLowerCase() + ".png"; }
 
-    // quick-select pills for the jurisdictions on the current plan
-    var jquick = document.getElementById("jQuick");
-    if (jquick && JD.length) {
-      jquick.innerHTML = JD.map(function (j) {
-        var badge = j.live ? '<span class="jqpill-badge">Recommended</span>' : '<span class="jqpill-badge soon">Soon</span>';
-        return '<button type="button" class="jqpill" data-iso="' + j.iso + '">' +
-          '<img class="jqpill-flag" src="https://flagcdn.com/w40/' + j.iso.toLowerCase() + '.png" alt="" loading="lazy" width="18" height="18">' +
-          '<span>' + j.name + '</span>' + badge +
-        '</button>';
-      }).join("");
-      jquick.querySelectorAll(".jqpill").forEach(function (btn) {
-        var iso = btn.dataset.iso;
-        btn.addEventListener("mouseenter", function () {
-          jquick.querySelectorAll(".jqpill").forEach(function (b) { b.classList.remove("active"); });
-          btn.classList.add("active");
-          if (window.Globe) { window.Globe.clearSearch(); window.Globe.focus(iso); }
-        });
-        btn.addEventListener("click", function () {
-          jquick.querySelectorAll(".jqpill").forEach(function (b) { b.classList.remove("active"); });
-          btn.classList.add("active");
-          if (window.Globe) { window.Globe.clearSearch(); window.Globe.focus(iso); }
-        });
-        btn.addEventListener("mouseleave", function () {
-          btn.classList.remove("active");
-          if (window.Globe) window.Globe.focus(null);
-        });
-      });
+  function makeCombo(cfg) {
+    var input = document.getElementById(cfg.input);
+    var list = document.getElementById(cfg.list);
+    var flag = cfg.flag ? document.getElementById(cfg.flag) : null;
+    var combo = cfg.combo ? document.getElementById(cfg.combo) : null;
+    if (!input || !list) return null;
+    var api = { value: null, input: input };
+    var filtered = [], activeIdx = -1, isOpen = false;
+
+    function optHTML(j, i) {
+      return '<li role="option" id="' + cfg.list + '-o' + i + '" class="jcombo__opt" data-i="' + i + '">' +
+        '<img class="jcombo__optflag" src="' + flagSm(j[1]) + '" alt="" width="22" height="16" loading="lazy">' +
+        '<span class="jcombo__optname">' + j[0] + '</span>' +
+        '<span class="jcombo__optreg">' + j[2] + '</span></li>';
     }
+    function build(q) {
+      q = (q || "").trim().toLowerCase();
+      filtered = (q ? ALLJ.filter(function (j) { return j[0].toLowerCase().indexOf(q) >= 0 || j[2].toLowerCase().indexOf(q) >= 0; }) : ALLJ).slice(0, 8);
+      list.innerHTML = filtered.length ? filtered.map(optHTML).join("") : '<li class="jcombo__empty" role="presentation">No jurisdiction found</li>';
+      activeIdx = -1;
+    }
+    function openDrop() {
+      if (isOpen) return;
+      isOpen = true; list.hidden = false; input.setAttribute("aria-expanded", "true");
+    }
+    function closeDrop() {
+      if (!isOpen) return;
+      isOpen = false; list.hidden = true;
+      input.removeAttribute("aria-activedescendant"); input.setAttribute("aria-expanded", "false"); activeIdx = -1;
+    }
+    function setActive(i) {
+      var opts = list.querySelectorAll(".jcombo__opt");
+      opts.forEach(function (o) { o.classList.remove("is-active"); o.setAttribute("aria-selected", "false"); });
+      activeIdx = i;
+      if (i >= 0 && opts[i]) { opts[i].classList.add("is-active"); opts[i].setAttribute("aria-selected", "true"); input.setAttribute("aria-activedescendant", opts[i].id); opts[i].scrollIntoView({ block: "nearest" }); }
+    }
+    function clearVal() {
+      api.value = null;
+      if (flag) { flag.style.backgroundImage = ""; flag.classList.remove("on"); }
+      if (combo) combo.classList.remove("has-val");
+    }
+    function choose(j) {
+      api.value = j; input.value = j[0];
+      if (flag) { flag.style.backgroundImage = "url(" + flagSm(j[1]) + ")"; flag.classList.add("on"); }
+      if (combo) combo.classList.add("has-val");
+      closeDrop(); if (cfg.onSelect) cfg.onSelect();
+    }
+    api.set = function (j) { if (j) choose(j); };
+    api.clear = function () { input.value = ""; clearVal(); closeDrop(); };
 
+    input.addEventListener("focus", function () { build(input.value); openDrop(); });
+    input.addEventListener("input", function () {
+      clearVal(); // any manual edit invalidates the committed value
+      build(input.value); openDrop();
+      if (filtered.length && cfg.onPreview) cfg.onPreview(filtered[0]);
+    });
+    input.addEventListener("keydown", function (e) {
+      if (!isOpen && (e.key === "ArrowDown" || e.key === "ArrowUp")) { build(input.value); openDrop(); return; }
+      if (!isOpen) return;
+      if (e.key === "ArrowDown") { e.preventDefault(); setActive(Math.min(filtered.length - 1, activeIdx + 1)); if (cfg.onPreview && filtered[activeIdx]) cfg.onPreview(filtered[activeIdx]); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); setActive(Math.max(0, activeIdx - 1)); if (cfg.onPreview && filtered[activeIdx]) cfg.onPreview(filtered[activeIdx]); }
+      else if (e.key === "Enter") { var j = filtered[activeIdx >= 0 ? activeIdx : 0]; if (j) { e.preventDefault(); choose(j); } }
+      else if (e.key === "Escape") { closeDrop(); input.blur(); }
+    });
+    list.addEventListener("mousedown", function (e) {
+      var li = e.target.closest(".jcombo__opt"); if (!li) return;
+      e.preventDefault(); choose(filtered[+li.dataset.i]);
+    });
+    list.addEventListener("pointermove", function (e) {
+      var li = e.target.closest(".jcombo__opt"); if (!li) return;
+      var i = +li.dataset.i; setActive(i); if (cfg.onPreview && filtered[i]) cfg.onPreview(filtered[i]);
+    });
+    input.addEventListener("blur", function () {
+      setTimeout(function () {
+        closeDrop();
+        // if user typed but never committed a selection, restore or clear
+        if (!api.value) input.value = "";
+        else input.value = api.value[0];
+      }, 200);
+    });
+    return api;
+  }
+
+  var jSearch = document.getElementById("jSearch");
+  if (jSearch && ALLJ.length) {
+    var passport = null, dest = null;
+    function toPt(j) { return { lat: j[3], lng: j[4], iso: j[1], name: j[0], region: j[2] }; }
+    function bothPicked() { return passport && passport.value && dest && dest.value; }
+    function previewFocus(j) {
+      if (!window.Globe || bothPicked() || !j) return;
+      window.Globe.clearRoute();
+      window.Globe.focusAt(j[3], j[4], { name: j[0], iso: j[1].toUpperCase(), region: j[2] });
+    }
+    function updateRoute() {
+      if (!window.Globe) return;
+      var o = passport && passport.value, d = dest && dest.value;
+      if (o && d) window.Globe.setRoute(toPt(o), toPt(d));
+      else if (d) { window.Globe.clearRoute(); window.Globe.focusAt(d[3], d[4], { name: d[0], iso: d[1].toUpperCase(), region: d[2] }); }
+      else if (o) { window.Globe.clearRoute(); window.Globe.focusAt(o[3], o[4], { name: o[0], iso: o[1].toUpperCase(), region: o[2] }); }
+      else window.Globe.clearRoute();
+    }
+    passport = makeCombo({ input: "jPassport", list: "jPassportList", flag: "jPassportFlag", combo: "jPassportCombo", onSelect: updateRoute, onPreview: previewFocus });
+    dest = makeCombo({ input: "jDest", list: "jDestList", flag: "jDestFlag", combo: "jDestCombo", onSelect: updateRoute, onPreview: previewFocus });
+
+    // when the section enters view, gently fly to the first recommended country
     var jsec = document.getElementById("jurisdictions");
     if (jsec && JD.length && "IntersectionObserver" in window) {
       var jio = new IntersectionObserver(function (es) {
         es.forEach(function (e) {
-          if (e.isIntersecting) { if (window.Globe) window.Globe.focus(JD[0].iso); jio.unobserve(jsec); }
+          if (e.isIntersecting) { if (window.Globe && !bothPicked()) window.Globe.focus(JD[0].iso); jio.unobserve(jsec); }
         });
       }, { threshold: 0.45 });
       jio.observe(jsec);
@@ -385,7 +406,7 @@
   });
 
   /* ---------- liquid-glass pointer light (laser glow follows the cursor) ---------- */
-  var GLOW_SEL = ".btn,.card,.j-card,.jcard,.reco-card,.dash-callout,.lg,.nav-inner,.jsearch-box";
+  var GLOW_SEL = ".btn,.card,.j-card,.jcard,.reco-card,.dash-callout,.lg,.nav-inner,.jcombo";
   var tiltEl = null, glowEl = null;
   function clearGlow(el) {
     el.style.setProperty("--mx", "-999px"); el.style.setProperty("--my", "-999px");
@@ -475,17 +496,34 @@
   }, { passive: true });
 
   function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+
+  // layout metrics (heroH, dark-zone end) are stable during scroll — cache them and
+  // recompute only on resize/load instead of forcing a layout read every frame.
+  var vhC = window.innerHeight, heroHC = heroEl ? heroEl.offsetHeight : vhC, darkEndC = 0;
+  function measureScene() {
+    vhC = window.innerHeight;
+    heroHC = heroEl ? heroEl.offsetHeight : vhC;
+    var ref = logobarEl || jSec;
+    darkEndC = ref ? ref.offsetTop + ref.offsetHeight : 0;
+  }
+  measureScene();
+  var _sceneRT; window.addEventListener("resize", function () { clearTimeout(_sceneRT); _sceneRT = setTimeout(measureScene, 150); }, { passive: true });
+  window.addEventListener("load", measureScene);
+
+  var lastY = -1, lastCmX = 999, lastCmY = 999;
   function scene() {
     requestAnimationFrame(scene);
     if (document.hidden) return;
-    var vh = window.innerHeight;
-    var heroH = heroEl ? heroEl.offsetHeight : vh;
     var y = window.scrollY || window.pageYOffset || 0;
-    var p = clamp01(y / (heroH * 0.9));                 // hero -> jurisdictions progress
-    if (window.Globe) window.Globe.setProgress(p);
-
     if (!reduce) { cmX += (mX - cmX) * 0.06; cmY += (mY - cmY) * 0.06; }
-    if (window.Globe) window.Globe.setParallax(cmX, cmY);
+    // dirty-check: if nothing scrolled and the cursor parallax has settled, do no
+    // layout reads, no style writes, no custom-prop churn this frame.
+    if (y === lastY && Math.abs(cmX - lastCmX) < 1e-3 && Math.abs(cmY - lastCmY) < 1e-3) return;
+    lastY = y; lastCmX = cmX; lastCmY = cmY;
+
+    var vh = vhC, heroH = heroHC;
+    var p = clamp01(y / (heroH * 0.9));                 // hero -> jurisdictions progress
+    if (window.Globe) { window.Globe.setProgress(p); window.Globe.setParallax(cmX, cmY); }
 
     // site-wide subtle cursor parallax for cards/panels (no cursor on touch)
     if (!reduce && !COARSE) {
@@ -509,8 +547,7 @@
     if (globeLayer && jSec) {
       // dark "space" layer covers hero + jurisdictions + the strip, then
       // scrolls up and fades out exactly as the strip's bottom edge clears the viewport
-      var darkEnd = (logobarEl || jSec).offsetTop + (logobarEl || jSec).offsetHeight;
-      var parkP = clamp01((y - (darkEnd - vh)) / (vh * 0.4));
+      var parkP = clamp01((y - (darkEndC - vh)) / (vh * 0.4));
       globeLayer.style.opacity = (1 - parkP).toFixed(3);
       globeLayer.style.transform = "translate3d(0," + (-parkP * vh * 0.6).toFixed(1) + "px,0)";
       globeLayer.classList.toggle("parked", parkP >= 0.999);

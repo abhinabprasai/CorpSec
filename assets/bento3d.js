@@ -354,21 +354,26 @@ function boot() {
   }
   document.addEventListener("visibilitychange", function () { visible = !document.hidden; });
 
-  let last = performance.now() / 1000;
+  let lastMs = performance.now();
+  let lastSec = lastMs / 1000;
   let running = true;
+  const FRAME_CAP = 1000 / 60; // cap at 60 fps
   function renderAll(now, dt) {
     pX += (tpX - pX) * 0.06; pY += (tpY - pY) * 0.06;
     for (let i = 0; i < instances.length; i++) instances[i].render(now, dt);
   }
-  function loop() {
+  function loop(ts) {
     if (!running) return;
-    const now = performance.now() / 1000;
-    let dt = now - last; last = now;
-    if (dt > 0.05) dt = 0.05;
-    // reduced motion: paint one settled frame, then stop the loop entirely
-    if (reduce) { if (visible) renderAll(now, 0); running = false; return; }
     requestAnimationFrame(loop);
     if (!visible) return;
+    const elapsed = ts - lastMs;
+    if (elapsed < FRAME_CAP - 1) return; // skip frame — within cap
+    lastMs = ts - (elapsed % FRAME_CAP);
+    const now = ts / 1000;
+    let dt = now - lastSec; lastSec = now;
+    if (dt > 0.05) dt = 0.05;
+    // reduced motion: paint one settled frame, then stop the loop entirely
+    if (reduce) { renderAll(now, 0); running = false; return; }
     renderAll(now, dt);
   }
   // capture/debug hook: headless screenshot tooling can stall on a live WebGL

@@ -8,6 +8,10 @@
    Fails soft (no canvas / reduced motion -> static, very light grain). */
 (function () {
   "use strict";
+  var PERF = window.__PERF || {};
+  // The grain/particle field runs on EVERY device (per product direction); the
+  // LOW tier below still cuts speck count + DPR so it stays cheap on weak hardware,
+  // and reduced-motion renders it static.
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion:reduce)").matches;
 
   var canvas = document.createElement("canvas");
@@ -16,7 +20,6 @@
   document.body.appendChild(canvas);
   var ctx = canvas.getContext("2d");
 
-  var PERF = window.__PERF || {};
   var LOW = !!PERF.low;
   var W = 1, H = 1, dpr = PERF.dpr || Math.min(window.devicePixelRatio || 1, 1.75);
   var docH = 1;

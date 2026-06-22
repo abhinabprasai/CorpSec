@@ -19,17 +19,22 @@
   }
 
   /* ---- coordinate lookups (for globe focus) built from the full list ---- */
-  var COORDS = {}, COORDS_ISO = {};
+  var COORDS = {}, COORDS_ISO = {}, META = {};
+  var SEARCH = [];
   ALL.forEach(function (r) {
-    if (typeof r[3] !== "number") return;
     var s = slugify(r[0]);
-    if (COORDS[s] === undefined) COORDS[s] = [r[3], r[4]];
-    if (COORDS_ISO[r[1]] === undefined) COORDS_ISO[r[1]] = [r[3], r[4]];
+    if (typeof r[3] === "number") {
+      if (COORDS[s] === undefined) COORDS[s] = [r[3], r[4]];
+      if (COORDS_ISO[r[1]] === undefined) COORDS_ISO[r[1]] = [r[3], r[4]];
+    }
+    if (META[s] === undefined) META[s] = { name: r[0], region: r[2] || "", iso: r[1], slug: s };
+    SEARCH.push({ name: r[0], slug: s, iso: r[1], region: r[2] || "", rich: !!BY[s] });
   });
   function focusGlobe(slug, iso) {
     if (!window.Globe) return;
     var c = (slug && COORDS[slug]) || (iso && COORDS_ISO[iso]);
-    if (c) window.Globe.focusAt(c[0], c[1]); else window.Globe.clearSearch();
+    if (c) window.Globe.focusAt(c[0], c[1], (slug && META[slug]) || null);
+    else window.Globe.clearSearch();
   }
 
   /* ---- long corporate-tax sentences → tidy bullet list ---- */
@@ -129,6 +134,7 @@
     input.addEventListener("input", function () {
       var q = input.value.trim().toLowerCase();
       var firstSlug = null, firstIso = null, anyMini = 0;
+      buildAC(input.value);
       // popular cards
       document.querySelectorAll("#jxPopular .hub-card").forEach(function (c) {
         var hit = !q || c.dataset.name.indexOf(q) > -1;
@@ -152,6 +158,68 @@
       if (q && (firstSlug || firstIso)) focusGlobe(firstSlug, firstIso);
       else if (window.Globe) window.Globe.clearSearch();
     });
+  }
+
+  /* ---- search autocomplete dropdown (quick jump + globe rotate) ---- */
+  var ac = null, acIdx = -1;
+  function acOpts() { return ac ? Array.prototype.slice.call(ac.querySelectorAll("li")) : []; }
+  function acSetActive(li) {
+    acOpts().forEach(function (o) { o.classList.remove("is-active"); o.setAttribute("aria-selected", "false"); });
+    if (li) {
+      li.classList.add("is-active"); li.setAttribute("aria-selected", "true"); acIdx = acOpts().indexOf(li);
+      if (input) input.setAttribute("aria-activedescendant", li.id);
+    } else if (input) { input.removeAttribute("aria-activedescendant"); }
+  }
+  function acHide() {
+    if (ac) { ac.hidden = true; ac.innerHTML = ""; } acIdx = -1;
+    if (input) { input.setAttribute("aria-expanded", "false"); input.removeAttribute("aria-activedescendant"); }
+  }
+  function buildAC(raw) {
+    if (!input || !form) return;
+    var q = (raw || "").trim().toLowerCase();
+    if (!ac) {
+      ac = document.createElement("ul");
+      ac.className = "hub-ac"; ac.id = "hubAC"; ac.setAttribute("role", "listbox");
+      ac.hidden = true; form.appendChild(ac);
+      ac.addEventListener("pointermove", function (e) {
+        var li = e.target.closest("li[data-slug]"); if (!li) return;
+        acSetActive(li); focusGlobe(li.dataset.slug, li.dataset.iso || null);
+      });
+      ac.addEventListener("mousedown", function (e) {     // mousedown fires before input blur
+        var li = e.target.closest("li[data-href]"); if (!li) return;
+        e.preventDefault(); window.location.href = li.dataset.href;
+      });
+    }
+    if (!q) { acHide(); return; }
+    var matches = SEARCH.filter(function (j) {
+      return j.name.toLowerCase().indexOf(q) > -1 || j.region.toLowerCase().indexOf(q) > -1;
+    }).slice(0, 7);
+    if (!matches.length) { acHide(); return; }
+    ac.innerHTML = matches.map(function (j, idx) {
+      var href = "jurisdiction.html?j=" + j.slug + (j.rich ? "" : "&n=" + encodeURIComponent(j.name) + "&iso=" + j.iso + "&r=" + encodeURIComponent(j.region));
+      return '<li role="option" id="hubac-opt-' + idx + '" class="hub-ac__opt" data-slug="' + j.slug + '" data-iso="' + j.iso + '" data-href="' + href + '">' +
+        '<img class="hub-ac__flag" src="' + flag(j.iso) + '" alt="" width="22" height="16" loading="lazy">' +
+        '<span class="hub-ac__name">' + j.name + '</span>' +
+        '<span class="hub-ac__region">' + j.region + '</span>' +
+        (j.rich ? '<span class="hub-ac__badge">Guide</span>' : '') + '</li>';
+    }).join("");
+    ac.hidden = false; input.setAttribute("aria-expanded", "true"); acIdx = -1;
+  }
+  if (input) {
+    input.setAttribute("role", "combobox");
+    input.setAttribute("aria-autocomplete", "list");
+    input.setAttribute("aria-controls", "hubAC");
+    input.setAttribute("aria-expanded", "false");
+    input.addEventListener("keydown", function (e) {
+      if (!ac || ac.hidden) return;
+      var o = acOpts(); if (!o.length) return;
+      if (e.key === "ArrowDown") { e.preventDefault(); acIdx = Math.min(o.length - 1, acIdx + 1); acSetActive(o[acIdx]); focusGlobe(o[acIdx].dataset.slug, o[acIdx].dataset.iso); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); acIdx = Math.max(0, acIdx - 1); acSetActive(o[acIdx]); focusGlobe(o[acIdx].dataset.slug, o[acIdx].dataset.iso); }
+      else if (e.key === "Enter") { var li = o[acIdx] || o[0]; if (li) { e.preventDefault(); window.location.href = li.dataset.href; } }
+      else if (e.key === "Escape") { acHide(); }
+    });
+    input.addEventListener("blur", function () { setTimeout(acHide, 150); });
+    input.addEventListener("focus", function () { if (input.value.trim()) buildAC(input.value); });
   }
 
   if (window.Interactions) window.Interactions.refresh(document);

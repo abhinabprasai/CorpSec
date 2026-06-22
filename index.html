@@ -39,7 +39,6 @@
     <a class="wordmark" href="#top" aria-label="CorpSec home">Corp<span>/</span>Sec</a>
     <nav class="nav-links" aria-label="Primary">
       <a href="jurisdictions.html">Jurisdictions</a>
-      <a href="jurisdictions.html#services">Services</a>
       <a href="about.html">About</a>
       <a href="contact.html">Contact</a>
     </nav>
@@ -54,7 +53,6 @@
   </div>
   <div class="nav-drawer" id="drawer">
     <a href="jurisdictions.html">Jurisdictions</a>
-    <a href="jurisdictions.html#services">Services</a>
     <a href="#pricing">Pricing</a>
     <a href="#how">How it works</a>
     <a href="about.html">About</a>
@@ -81,7 +79,7 @@
   <div class="container">
     <div class="hero-center" data-par="0.5">
       <span class="eyebrow">Global incorporation</span>
-      <h1 class="display">Your company <span class="grad-shine">Incorporated</span><br />where it matters.</h1>
+      <h1 class="display">Your company,<br /><span class="roll" id="heroRoll" aria-hidden="true"><span class="roll__item grad-shine is-in">incorporated.</span><span class="roll__item grad-shine">live in 48 hours.</span><span class="roll__item grad-shine">where it matters.</span><span class="roll__item grad-shine">in any jurisdiction.</span></span><span class="sr-only">Your company — incorporated, live in 48 hours, where it matters, in any jurisdiction.</span></h1>
       <p class="lede">Incorporation, registered address, accounting — across 79 jurisdictions. You tell us where. We handle the rest.</p>
       <div class="hero-gab">
         <form class="gab-bar" id="gabBar" autocomplete="off">
@@ -118,14 +116,30 @@
         <h2 class="on-dark">Seven jurisdictions,<br />live for checkout today.</h2>
         <p class="sub on-dark-sub">Hover a market — the globe turns to show you exactly where you'll incorporate. Real prices, remote setup, licensed local partners.</p>
       </div>
-      <div class="jsearch" id="jSearch">
-        <div class="jsearch-box">
-          <svg class="jsearch-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          <input type="text" id="jSearchInput" placeholder="Search any of our 79 jurisdictions…" autocomplete="off" />
+      <div class="jsearch jsearch--pair" id="jSearch">
+        <div class="jpair">
+          <div class="jfield">
+            <label class="jfield__lab" for="jPassport">My passport</label>
+            <div class="jcombo" id="jPassportCombo">
+              <span class="jcombo__flag" id="jPassportFlag" aria-hidden="true"></span>
+              <input class="jcombo__in" id="jPassport" type="text" role="combobox" aria-expanded="false" aria-controls="jPassportList" aria-autocomplete="list" aria-label="My passport — country of citizenship" autocomplete="off" placeholder="Country of citizenship" />
+              <svg class="jcombo__chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              <ul class="jcombo__list" id="jPassportList" role="listbox" aria-label="Passport country" hidden></ul>
+            </div>
+          </div>
+          <span class="jpair__link" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+          </span>
+          <div class="jfield">
+            <label class="jfield__lab" for="jDest">Country to incorporate</label>
+            <div class="jcombo" id="jDestCombo">
+              <span class="jcombo__flag" id="jDestFlag" aria-hidden="true"></span>
+              <input class="jcombo__in" id="jDest" type="text" role="combobox" aria-expanded="false" aria-controls="jDestList" aria-autocomplete="list" aria-label="Country to incorporate in" autocomplete="off" placeholder="Where to set up" />
+              <svg class="jcombo__chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              <ul class="jcombo__list" id="jDestList" role="listbox" aria-label="Destination jurisdiction" hidden></ul>
+            </div>
+          </div>
         </div>
-        <div class="jsearch-results" id="jSearchResults"></div>
-        <div class="jquick-label">Recommended jurisdictions on your plan</div>
-        <div class="jquick" id="jQuick"></div>
       </div>
     </div>
     <div class="juris2-right" aria-hidden="true"></div>
@@ -148,7 +162,7 @@
     <div class="stat-grid reveal">
       <div class="stat-item"><b>79</b><span>jurisdictions live</span></div>
       <div class="stat-item"><b>500+</b><span>companies incorporated</span></div>
-      <div class="stat-item"><b>48h</b><span>average to formed</span></div>
+      <div class="stat-item"><b>48h</b><span>average to incorporate</span></div>
       <div class="stat-item"><b>4.9★</b><span>from 1,500+ founders</span></div>
     </div>
   </div>
@@ -159,7 +173,7 @@
   <div class="container">
     <div class="section-head bento-head reveal">
       <span class="eyebrow">The risk</span>
-      <h2 class="bento-headline"><span class="lead">Pick the wrong jurisdiction once.</span> <span class="rest">Then spend years — and well into six figures — paying tax authorities, banks, lawyers, and investors to undo a single line on a certificate of incorporation.</span></h2>
+      <h2 class="bento-headline"><span class="lead">Pick the wrong jurisdiction once.</span> <span class="rest">Then spend years — and six figures — paying tax authorities, banks and lawyers to undo it.</span></h2>
       <p class="sub">We recommend the right fit across 79 jurisdictions, not the one that pays us most.</p>
       <a href="#recommender" class="btn btn-primary" data-cta="gabriella">Find my jurisdiction — free</a>
     </div>
@@ -198,7 +212,7 @@
             <span class="gfx-stat warn">Margin eroded</span>
           </div>
           <div class="bento-card__inner">
-            <h3 class="bento-card__title">A zero-tax offshore jurisdiction can still be taxed at home, as CFC rules and untreatied withholding erode every cross-border dollar.</h3>
+            <h3 class="bento-card__title">A zero-tax offshore company can still be taxed at home — CFC rules and treaty gaps quietly erode every cross-border dollar.</h3>
             <p class="bento-card__support">Tax follows the people who control the company, not the registry.</p>
           </div>
           <span class="bento-card__expand" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2H2v4M10 14h4v-4M2 2l5 5M14 14l-5-5"/></svg></span>
@@ -239,7 +253,7 @@
             </div>
           </div>
           <div class="bento-card__inner">
-            <h3 class="bento-card__title">Re-domiciling a mis-incorporated entity is a full cross-border reorganization, with legal and accounting fees that routinely run five figures.</h3>
+            <h3 class="bento-card__title">Moving a mis-incorporated entity is a full cross-border reorganization — legal and accounting fees routinely run five figures.</h3>
             <p class="bento-card__support">The flip triggers tax advice in two countries and fresh consents.</p>
           </div>
           <span class="bento-card__expand" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2H2v4M10 14h4v-4M2 2l5 5M14 14l-5-5"/></svg></span>
@@ -261,7 +275,7 @@
             <span class="gfx-stat warn">Substance: low</span>
           </div>
           <div class="bento-card__inner">
-            <h3 class="bento-card__title">Offshore hubs now demand real economic substance, and a single grey- or blacklisting can taint your banking and tax position overnight.</h3>
+            <h3 class="bento-card__title">Offshore hubs now demand real economic substance — and one grey- or blacklisting can wreck your banking and tax position overnight.</h3>
             <p class="bento-card__support">Lists change after you incorporate, often with little warning.</p>
           </div>
           <span class="bento-card__expand" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2H2v4M10 14h4v-4M2 2l5 5M14 14l-5-5"/></svg></span>
@@ -273,7 +287,7 @@
           <div class="bento-card__bg"></div>
           <div class="bento-card__inner">
             <div class="bento-card__text-col">
-              <h3 class="bento-card__title">Across multiple entities, one missed annual filing can administratively dissolve the company that holds your IP, bank, and cap table.</h3>
+              <h3 class="bento-card__title">One missed filing can dissolve the entity holding your IP, bank accounts and cap table.</h3>
               <p class="bento-card__support">Lost good standing surfaces at the worst moment — mid-raise.</p>
               <span class="gfx-stat danger">3 entities · 2 overdue</span>
             </div>
@@ -305,7 +319,7 @@
       <div class="chips">
         <span class="chip">✓ Free</span><span class="chip">✓ No login</span><span class="chip">✓ No sales call</span>
       </div>
-      <a href="#recommender" class="btn btn-white" data-cta="gabriella">Find my jurisdiction</a>
+      <a href="#recommender" class="btn btn-white" data-cta="gabriella">Start the 2-minute match</a>
     </div>
     <div class="reveal">
       <div class="steps">
@@ -328,7 +342,7 @@
         </div>
         <div class="reco-foot">
           <span class="reco-also">Also considered: Estonia · UK · Delaware</span>
-          <a href="#" class="btn btn-primary btn-sm" data-cta="incorp" data-jur="Singapore">Start →</a>
+          <a href="#" class="btn btn-primary btn-sm" data-cta="incorp" data-jur="Singapore">Start in Singapore →</a>
         </div>
       </div>
     </div>
@@ -409,7 +423,7 @@
       <article class="hw-card" data-slot="card">
         <span class="hw-num">03</span>
         <div class="hw-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9"/><path d="M3 4v4h4"/><path d="M12 8v4l3 2"/></svg></div>
-        <h3>Run it on autopilot</h3>
+        <h3>Runs on autopilot</h3>
         <p>Every renewal, filing and bookkeeping deadline handled by licensed local partners, surfaced in one dashboard — one invoice.</p>
         <a class="hw-link" href="#platform" data-slot="button" data-variant="link">See the dashboard →</a>
       </article>
@@ -423,7 +437,7 @@
     <div class="section-head bento-head reveal">
       <span class="eyebrow">Track record</span>
       <h2 class="bento-headline"><span class="lead">Founders who got it right.</span> <span class="rest">500+ companies incorporated across 79 jurisdictions — here's what the right structure actually changed.</span></h2>
-      <p class="sub">A snapshot of the jurisdictions, savings, and timelines founders landed on after running the recommender.</p>
+      <p class="sub">The jurisdictions, savings and timelines founders landed on after running the recommender.</p>
     </div>
 
     <div class="proof-bento reveal">
@@ -545,7 +559,7 @@
   <div class="container">
     <div class="section-head bento-head reveal">
       <span class="eyebrow">Pricing</span>
-      <h2 class="bento-headline"><span class="lead">Plans that scale with your entities.</span> <span class="rest">Start free with the recommender, incorporate your first entity for one all-in price, or run a portfolio across jurisdictions on a dedicated plan.</span></h2>
+      <h2 class="bento-headline"><span class="lead">Plans that scale with your entities.</span> <span class="rest">Start free, incorporate your first entity for one all-in price, or run a whole portfolio on a dedicated plan.</span></h2>
     </div>
 
     <div class="pricing-grid reveal">
@@ -744,12 +758,12 @@
   <div class="container">
     <div class="section-head reveal">
       <span class="eyebrow">Your stack, connected</span>
-      <h2>Built to fit the tools you already live in.</h2>
+      <h2>Works with the tools you already use.</h2>
       <p class="sub">Bank with Mercury, Wise or your local partner. Pay with Stripe. Manage cap tables in Carta or Pulley. We hand off cleanly.</p>
     </div>
     <div class="marquee reveal">
       <div class="logos integ-logos">
-        <span>Stripe</span><span>Wise</span><span>Mercury</span><span>Carta</span><span>Pulley</span><span>Revolut</span><span>Brex</span>
+        <span>Wise</span><span>Mercury</span><span>Carta</span><span>Pulley</span><span>Revolut</span><span>Brex</span>
       </div>
     </div>
   </div>
@@ -759,7 +773,7 @@
 <section class="section band-primary finalcta">
   <div class="container center reveal">
     <h2 class="on-dark">Start where it actually matters.</h2>
-    <p class="sub on-dark-sub">Formation, address, accounting — in 48h on average. Not sure where to begin? Two minutes. No login.</p>
+    <p class="sub on-dark-sub">Formation, address and accounting — 48h on average. Not sure where to begin? Two minutes, no login.</p>
     <div class="hero-cta center-cta">
       <a href="#recommender" class="btn btn-white btn-lg" data-slot="button" data-variant="secondary" data-size="lg" data-cta="gabriella">Find my jurisdiction</a>
       <a href="#" class="btn btn-ghost-light btn-lg" data-slot="button" data-variant="outline" data-size="lg" data-cta="contact" data-source="final_cta">Talk to sales</a>
@@ -772,12 +786,18 @@
 
 <!-- ===== FOOTER ===== -->
 <footer class="footer">
+  <span class="foot-watermark" aria-hidden="true"><svg viewBox="0 0 43 43" fill="none"><path fill="currentColor" fill-rule="evenodd" d="m0 43 43-9.119V0L0 9.226V43Z" clip-rule="evenodd"/></svg></span>
   <!-- top: brand + newsletter -->
   <div class="container foot-top">
     <div class="foot-brand">
       <a class="wordmark on-dark" href="#top">Corp<span>/</span>Sec</a>
       <p>Your company, anywhere it matters.</p>
       <span class="foot-brand__trust">500+ companies incorporated across 79 jurisdictions.</span>
+      <a class="foot-gab" href="#recommender" data-cta="gabriella">
+        <span class="foot-gab__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 7V4M9 13h.01M15 13h.01M9 17h6"/><path d="M2 12v2M22 12v2"/></svg></span>
+        <span class="foot-gab__tx"><b>Ask Gabriella <span class="foot-gab__ai">AI</span></b><small>Find your jurisdiction in 2 minutes — free</small></span>
+        <span class="foot-gab__go" aria-hidden="true">→</span>
+      </a>
     </div>
     <div class="foot-sub">
       <h4>Cross-border briefing</h4>
@@ -795,38 +815,31 @@
     <div class="foot-col">
       <h4>Product</h4>
       <a href="#recommender" data-cta="gabriella">Gabriella advisor</a>
-      <a href="#jurisdictions">All 79 jurisdictions</a>
+      <a href="jurisdictions.html">All 79 jurisdictions</a>
+      <a href="compare.html">Compare jurisdictions</a>
       <a href="#backoffice">Company formation</a>
-      <a href="#backoffice">Registered address</a>
-      <a href="#backoffice">Accounting &amp; tax</a>
-      <a href="#platform">The dashboard</a>
       <a href="#pricing">Pricing</a>
     </div>
     <div class="foot-col">
       <h4>Solutions</h4>
       <a href="#recommender" data-cta="gabriella">SaaS &amp; startups</a>
       <a href="#recommender" data-cta="gabriella">Holding companies</a>
-      <a href="#recommender" data-cta="gabriella">E-commerce sellers</a>
+      <a href="#recommender" data-cta="gabriella">E-commerce &amp; DTC</a>
       <a href="#recommender" data-cta="gabriella">Crypto &amp; Web3</a>
       <a href="#recommender" data-cta="gabriella">Solo founders</a>
-      <a href="#recommender" data-cta="gabriella">Fund &amp; SPV structures</a>
     </div>
     <div class="foot-col">
       <h4>Resources</h4>
-      <a href="#jurisdictions">Jurisdiction guides</a>
-      <a href="#pricing">Cost calculator</a>
-      <a href="#faq">Compliance calendar</a>
-      <a href="#proof">Customer stories</a>
-      <a href="#faq">Help center</a>
+      <a href="jurisdictions.html">Jurisdiction guides</a>
+      <a href="compare.html">Compare jurisdictions</a>
       <a href="#how">How it works</a>
+      <a href="#faq">Help center</a>
     </div>
     <div class="foot-col">
       <h4>Company</h4>
       <a href="about.html">About CorpSec</a>
       <a href="about.html#team">Meet the team</a>
-      <a href="#backoffice">Our local partners</a>
       <a href="contact.html">Contact us</a>
-      <a href="#" data-cta="contact" data-source="footer">Partner with us</a>
       <a href="contact.html">Talk to sales</a>
     </div>
     <div class="foot-col">
@@ -834,8 +847,6 @@
       <a href="#">Terms of service</a>
       <a href="#">Privacy policy</a>
       <a href="#">Cookie policy</a>
-      <a href="#">Legal &amp; regulatory notice</a>
-      <a href="#">Trust &amp; security</a>
       <a href="mailto:hello@corpsec.io">hello@corpsec.io</a>
     </div>
   </div>
@@ -863,7 +874,6 @@
       <a href="#" aria-label="CorpSec on LinkedIn"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM10 9h3.8v1.7h.05c.53-.95 1.83-1.95 3.77-1.95 4.03 0 4.78 2.5 4.78 5.75V21h-4v-5.1c0-1.22-.02-2.8-1.95-2.8s-2.25 1.32-2.25 2.7V21h-4z"/></svg></a>
       <a href="#" aria-label="CorpSec on X"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
       <a href="#" aria-label="CorpSec on GitHub"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49v-1.7c-2.78.62-3.37-1.37-3.37-1.37-.46-1.18-1.11-1.5-1.11-1.5-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.9 1.57 2.34 1.12 2.91.85.09-.66.35-1.12.63-1.37-2.22-.26-4.55-1.13-4.55-5.04 0-1.11.39-2.02 1.03-2.73-.1-.26-.45-1.3.1-2.7 0 0 .84-.27 2.75 1.04A9.4 9.4 0 0 1 12 6.85c.85 0 1.71.12 2.51.34 1.91-1.31 2.75-1.04 2.75-1.04.55 1.4.2 2.44.1 2.7.64.71 1.03 1.62 1.03 2.73 0 3.92-2.34 4.78-4.57 5.03.36.32.68.94.68 1.9v2.82c0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2z"/></svg></a>
-      <svg class="footer-mark" viewBox="0 0 43 43" fill="none" aria-hidden="true"><path fill="#533afd" fill-rule="evenodd" d="m0 43 43-9.119V0L0 9.226V43Z" clip-rule="evenodd"/></svg>
     </div>
   </div>
 </footer>
@@ -884,7 +894,7 @@
      only once a 3D card nears the viewport — keeps it off the critical path -->
 <script type="module">
   var P = window.__PERF || {};
-  if (!P.low) {
+  if (!P.mobile && !P.saveData) {
     var cards = document.querySelectorAll("[data-gfx]");
     if (cards.length) {
       var load = function () { import("./assets/bento3d.js"); };

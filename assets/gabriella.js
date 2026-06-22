@@ -403,4 +403,43 @@
       window.openGabriella(c.textContent.trim());
     });
   }
+
+  /* ============================================================
+     Give every prominent "Ask Gabriella" CTA an AI vibe:
+     a twinkling sparkle + breathing glow (CSS class .is-ai).
+     Scoped to buttons + the CTA pill — not plain text links.
+     ============================================================ */
+  function decorateAIButtons() {
+    /* inject shared SVG gradient defs once */
+    if (!document.getElementById("gabGradDefs")) {
+      var d = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      d.id = "gabGradDefs"; d.setAttribute("aria-hidden", "true");
+      d.style.cssText = "position:absolute;width:0;height:0;overflow:hidden";
+      d.innerHTML = '<defs>' +
+        '<linearGradient id="gabStarGrad" x1="0%" y1="0%" x2="100%" y2="100%">' +
+        '<stop offset="0%" stop-color="#c4b5fd"/>' +
+        '<stop offset="40%" stop-color="#a78bfa"/>' +
+        '<stop offset="72%" stop-color="#f472b6"/>' +
+        '<stop offset="100%" stop-color="#fb923c"/>' +
+        '</linearGradient></defs>';
+      document.body.insertBefore(d, document.body.firstChild);
+    }
+    var sel = '.btn[data-cta="gabriella"], .jx-cta2__pill[data-cta="gabriella"]';
+    var SPARK = '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+      '<path fill="url(#gabStarGrad)" d="M12 2 13.8 10.2 22 12 13.8 13.8 12 22 10.2 13.8 2 12 10.2 10.2Z"/></svg>';
+    document.querySelectorAll(sel).forEach(function (b) {
+      if (b.__ai) return; b.__ai = true;
+      b.classList.add("is-ai");
+      var s = document.createElement("span");
+      s.className = "gab-spark"; s.setAttribute("aria-hidden", "true");
+      s.innerHTML = SPARK;
+      b.insertBefore(s, b.firstChild);
+    });
+    /* hero prompt-bar send button: breathing glow only — the bar already
+       carries its own sparkle avatar, so we skip the injected star here. */
+    var gabSend = document.querySelector("#gabBar .gab-send");
+    if (gabSend && !gabSend.__ai) { gabSend.__ai = true; gabSend.classList.add("is-ai"); }
+  }
+  if (document.readyState !== "loading") decorateAIButtons();
+  else document.addEventListener("DOMContentLoaded", decorateAIButtons);
 })();

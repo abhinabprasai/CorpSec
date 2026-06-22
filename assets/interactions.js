@@ -33,6 +33,74 @@
     }, 1600);
   }
 
+  /* ── edge rails: fade the page-margin lines over dark sections ─────────
+     Shared by every page (was index-only in app.js) so the appear/disappear
+     behaviour is identical site-wide. The dark footer is included, so the
+     rails always fade out as you reach the bottom of any page. */
+  function initRails() {
+    if (!("IntersectionObserver" in window)) return;
+    var darkEls = document.querySelectorAll(".hero,.juris2,.band-dark,.band-primary,.footer");
+    if (!darkEls.length) return;
+    var darkState = new Map();
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { darkState.set(e.target, e.isIntersecting); });
+      var anyDark = false;
+      darkState.forEach(function (v) { if (v) anyDark = true; });
+      document.body.classList.toggle("rails-hidden", anyDark);
+    }, { threshold: 0 });
+    darkEls.forEach(function (el) { io.observe(el); });
+  }
+
+  /* ── count-up: animate stat numbers when they scroll into view ─────────
+     Auto-detects the stat <b> elements site-wide (statband, CTA stats, about
+     stats) plus anything tagged [data-count]. Parses the existing text so
+     "500+", "48h", "4.9★", "1,500+" keep their prefix/suffix and formatting. */
+  function initCounters() {
+    var els = document.querySelectorAll(
+      ".stat-item b,.jx-cta2__stats b,.about-stat b,[data-count]");
+    if (!els.length) return;
+    function parse(txt) {
+      var m = String(txt).match(/^(\D*?)([\d][\d.,]*)(.*)$/);
+      if (!m) return null;
+      var raw = m[2];
+      var num = parseFloat(raw.replace(/,/g, ""));
+      if (isNaN(num)) return null;
+      return { pre: m[1], num: num, suf: m[3],
+        dec: (raw.split(".")[1] || "").length, comma: raw.indexOf(",") > -1 };
+    }
+    function fmt(v, p) {
+      var s = v.toFixed(p.dec);
+      if (p.comma) {
+        var parts = s.split(".");
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        s = parts.join(".");
+      }
+      return p.pre + s + p.suf;
+    }
+    function run(el) {
+      var p = el.__cp; if (!p) return;
+      if (reduce) { el.textContent = fmt(p.num, p); return; }
+      var dur = 1300, t0 = null;
+      function step(ts) {
+        if (t0 === null) t0 = ts;
+        var k = Math.min(1, (ts - t0) / dur);
+        el.textContent = fmt(p.num * (1 - Math.pow(1 - k, 3)), p);   // easeOutCubic
+        if (k < 1) requestAnimationFrame(step); else el.textContent = fmt(p.num, p);
+      }
+      requestAnimationFrame(step);
+    }
+    var io = ("IntersectionObserver" in window) ? new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { run(e.target); io.unobserve(e.target); } });
+    }, { threshold: 0.45 }) : null;
+    els.forEach(function (el) {
+      if (el.__cp) return;
+      var p = parse(el.textContent); if (!p) return;
+      el.__cp = p;
+      el.textContent = fmt(reduce ? p.num : 0, p);
+      if (io) io.observe(el); else run(el);
+    });
+  }
+
   /* ── cursor spotlight (radial glow follows mouse) ─────────────────────── */
   function initCursorSpot() {
     if (!HOVER || reduce) return;
@@ -112,7 +180,6 @@
         card.style.setProperty("--card-mouse-y", my.toFixed(1) + "px");
         if (reduce) return;
         var px = mx / r.width - 0.5, py = my / r.height - 0.5;
-        /* ±0.5 → ±6° tilt: clearly perceptible without feeling gimmicky */
         card.style.setProperty("--card-rot-x", (py * -12).toFixed(2) + "deg");
         card.style.setProperty("--card-rot-y", (px * 12).toFixed(2) + "deg");
         card.style.setProperty("--card-shift-x", (px * 14).toFixed(2) + "px");
@@ -120,10 +187,17 @@
         card.style.setProperty("--card-grow-x", Math.abs(px * 10).toFixed(2));
         card.style.setProperty("--card-grow-y", Math.abs(py * 10).toFixed(2));
       };
+      card.addEventListener("pointerenter", function () {
+        /* kill the transform transition while tracking so tilt is instant */
+        card.style.transition = 'box-shadow .45s var(--ease-soft)';
+      }, { passive: true });
       card.addEventListener("pointermove", function (e) {
         cEvt = e; if (cQueued) return; cQueued = true; requestAnimationFrame(apply);
       }, { passive: true });
       card.addEventListener("pointerleave", function () {
+        cEvt = null; // discard any pending RAF so it doesn't re-apply after reset
+        /* restore spring transition so the card springs back to rest */
+        card.style.transition = '';
         card.style.setProperty("--card-rot-x", "0deg");
         card.style.setProperty("--card-rot-y", "0deg");
         card.style.setProperty("--card-shift-x", "0px");
@@ -174,6 +248,35 @@
     refresh: function (root) { initTilt(root); initReveal(); }
   };
 
+  /* ── rolling headline (#heroRoll): cycles the highlighted phrase ──────────
+     JS owns only the schedule (which phrase is .is-in); the slide+fade is a pure
+     CSS transition on transform/opacity (compositor-only). Phrases are stacked in
+     one CSS grid cell so the container reserves the widest/tallest → zero layout
+     shift. Pauses off-screen + on tab-hide; static first phrase under reduced-motion
+     (the whole sentence is exposed to AT via an adjacent .sr-only span). */
+  function initRoller() {
+    var roll = document.getElementById("heroRoll");
+    if (!roll) return;
+    var items = Array.prototype.slice.call(roll.querySelectorAll(".roll__item"));
+    if (items.length < 2 || reduce) return;          // reduced-motion: leave first phrase shown
+    var idx = 0, timer = null;
+    function step() {
+      var cur = items[idx];
+      idx = (idx + 1) % items.length;
+      var nxt = items[idx];
+      cur.classList.remove("is-in"); cur.classList.add("is-out");
+      nxt.classList.remove("is-out"); nxt.classList.add("is-in");
+      // after the transition, return the old phrase to its resting (below) state
+      setTimeout(function () { cur.classList.remove("is-out"); }, 650);
+    }
+    function play() { if (!timer) timer = setInterval(step, 2600); }
+    function stop() { if (timer) { clearInterval(timer); timer = null; } }
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (es) { es[0].isIntersecting ? play() : stop(); }, { threshold: 0 }).observe(roll);
+    } else { play(); }
+    document.addEventListener("visibilitychange", function () { document.hidden ? stop() : play(); });
+  }
+
   if (document.readyState !== "loading") boot();
   else document.addEventListener("DOMContentLoaded", boot);
 
@@ -182,7 +285,10 @@
     initGlow();
     initTilt();
     initReveal();
+    initRails();
+    initCounters();
     initParallax();
+    initRoller();
     watchNewCards();
   }
 })();
